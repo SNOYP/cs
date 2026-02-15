@@ -5,76 +5,112 @@
     <title>SkinCasino | CS2</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        :root { --bg: #121212; --panel: #1e1e1e; --accent: #ff9800; --text: #e0e0e0; }
-        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; margin: 0; overflow-x: hidden; }
+        /* --- ЕДИНЫЙ СТИЛЬ --- */
+        :root {
+            --bg-body: #13151b;
+            --bg-panel: #1d202b;
+            --accent-blue: #3d7fff;
+            --accent-cyan: #00e7ff;
+            --accent-green: #54b947;
+            --accent-red: #ff4b2b;
+            --text-main: #ffffff;
+            --text-sec: #767c91;
+            --border-radius: 12px;
+        }
 
+        body {
+            background: var(--bg-body);
+            color: var(--text-main);
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        /* --- ШАПКА (Идентична Crash) --- */
         header {
-            background: var(--panel);
-            padding: 10px 20px;
+            background: var(--bg-panel);
+            padding: 0 25px;
+            height: 60px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid #333;
+            border-bottom: 1px solid #2a2e3d;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
+        .logo { font-size: 22px; font-weight: 800; color: var(--accent-cyan); text-transform: uppercase; letter-spacing: 1px; text-decoration: none; }
+        .user-panel { display: flex; align-items: center; gap: 15px; background: #151820; padding: 6px 15px; border-radius: 30px; border: 1px solid #2a2e3d; }
+        .balance { color: var(--accent-green); font-weight: bold; }
 
-        .user-panel {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            background: #252525;
-            padding: 5px 15px;
-            border-radius: 8px;
-        }
-
-        .balance { color: #4caf50; font-weight: bold; }
-        .logout-btn { color: #ff5252; text-decoration: none; transition: 0.2s; }
-        .logout-btn:hover { opacity: 0.7; }
-
+        /* --- СЕТКА ИГР --- */
         .game-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
             padding: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
         .game-card {
-            background: var(--panel);
-            border-radius: 12px;
-            padding: 20px;
+            background: var(--bg-panel);
+            border-radius: var(--border-radius);
+            padding: 30px;
             text-align: center;
-            border: 1px solid #333;
-            transition: transform 0.2s;
+            border: 1px solid #2f3447;
+            transition: all 0.3s ease;
             cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
 
-        .game-card:hover { transform: translateY(-5px); border-color: var(--accent); }
-        .game-card i { font-size: 40px; color: var(--accent); margin-bottom: 15px; }
+        .game-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-blue);
+            box-shadow: 0 10px 30px rgba(61, 127, 255, 0.15);
+        }
+
+        .game-card i {
+            font-size: 50px;
+            color: var(--accent-blue);
+            margin-bottom: 20px;
+            transition: 0.3s;
+        }
+
+        .game-card:hover i {
+            color: var(--accent-cyan);
+            text-shadow: 0 0 15px var(--accent-cyan);
+        }
+
+        .game-card h3 { margin: 0 0 10px 0; font-size: 20px; text-transform: uppercase; letter-spacing: 1px; }
+        .game-card p { color: var(--text-sec); font-size: 14px; margin: 0; }
     </style>
 </head>
 <body>
 
 <header>
-    <div style="font-size: 20px; font-weight: 800; color: var(--accent);">SKINCASINO</div>
+    <div class="logo"><i class="fas fa-rocket" style="margin-right: 8px;"></i> SkinCasino</div>
 
     <div class="user-panel" th:if="${user != null}">
-        <div style="text-align: right;">
-            <div th:text="${user.username}" style="font-size: 14px;">User</div>
-            <div class="balance"><i class="fas fa-coins"></i> <span th:text="${user.balance}">0</span></div>
+        <div style="text-align: right; line-height: 1.2;">
+            <div th:text="${user.username}" style="font-size: 13px; color: white;">User</div>
+            <div class="balance" style="font-size: 14px;"><i class="fas fa-coins"></i> <span th:text="${user.balance}">0</span></div>
         </div>
-        <a href="/logout" class="logout-btn"><i class="fas fa-power-off"></i></a>
+        <a href="/logout" style="color: #ff5252; margin-left: 10px; font-size: 18px;"><i class="fas fa-sign-out-alt"></i></a>
     </div>
 </header>
 
 <main class="game-grid">
-    <div class="game-card" onclick="location.href='/game/crash'" style="cursor: pointer;">
-        <i class="fas fa-circle-notch fa-spin-slow"></i>
+    <div class="game-card" onclick="location.href='/game/crash'">
+        <i class="fas fa-chart-line"></i>
         <h3>Crash</h3>
-        <p>Нажми, чтобы играть</p>
+        <p>Успей забрать до краша!</p>
     </div>
-    <div class="game-card">
-        <i class="fas fa-republican"></i>
+
+    <div class="game-card" style="opacity: 0.7; cursor: not-allowed;">
+        <i class="fas fa-coins"></i>
         <h3>Coinflip</h3>
-        <p style="font-size: 12px; color: #888;">50/50 - Удвой или проиграй.</p>
+        <p>Скоро... 50/50 - Удвой или проиграй.</p>
     </div>
 </main>
 
