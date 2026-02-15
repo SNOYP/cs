@@ -11,9 +11,9 @@ public class CrashGame {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Double crashPoint; // На сколько крашнулось (например, 1.25)
+    private Double crashPoint;
 
-    private LocalDateTime playedAt; // Когда была игра
+    private LocalDateTime playedAt;
 
     public CrashGame() {}
 

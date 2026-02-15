@@ -5,6 +5,7 @@ import com.example.demo.repository.UserRepository;
 import jakarta.annotation.PostConstruct;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import java.util.Optional;
 
 @Service
 public class UserService {
@@ -25,21 +26,30 @@ public class UserService {
         }
     }
 
-    // ТОТ САМЫЙ МЕТОД, КОТОРОГО НЕ ХВАТАЛО
     public void registerNewUser(String username, String password) throws Exception {
         if (userRepository.findByUsername(username).isPresent()) {
-            throw new Exception("Пользователь с таким логином уже существует!");
+            throw new Exception("Пользователь существует!");
         }
         createUser(username, password, "ROLE_USER", 0L, null);
     }
 
-    public User processSteamLogin(String steamId, String username) {
-        return userRepository.findBySteamId(steamId).orElseGet(() ->
-                createUser(username, null, "ROLE_USER", 0L, steamId)
-        );
+    // --- ОБНОВЛЕННЫЙ МЕТОД ---
+    public User processSteamLogin(String steamId, String steamNickname) {
+        Optional<User> existingUser = userRepository.findBySteamId(steamId);
+
+        if (existingUser.isPresent()) {
+            User user = existingUser.get();
+            // Обновляем ник, если сменился в стиме
+            if (!user.getUsername().equals(steamNickname)) {
+                user.setUsername(steamNickname);
+                userRepository.save(user);
+            }
+            return user;
+        } else {
+            return createUser(steamNickname, null, "ROLE_USER", 0L, steamId);
+        }
     }
 
-    // Универсальный метод создания (оптимизация кода)
     private User createUser(String username, String password, String role, Long balance, String steamId) {
         User user = new User();
         user.setUsername(username);

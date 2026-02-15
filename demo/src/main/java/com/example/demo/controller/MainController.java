@@ -19,18 +19,18 @@ public class MainController {
 
     @GetMapping("/")
     public String home(@AuthenticationPrincipal UserDetails userDetails, Model model) {
-        // Достаем актуальные данные юзера из БД
         User user = userRepository.findByUsername(userDetails.getUsername()).orElseThrow();
-
         model.addAttribute("user", user);
         return "index";
     }
-    // Переход на страницу краша
+
     @GetMapping("/game/crash")
-    public String crashPage() {
-        return "crash"; // Имя файла в папке templates (crash.html)
+    public String crashPage(@AuthenticationPrincipal UserDetails userDetails, Model model) {
+        User user = userRepository.findByUsername(userDetails.getUsername()).orElseThrow();
+        model.addAttribute("user", user);
+        return "crash";
     }
-    // Консолька админа (доступна только с ролью ADMIN)
+
     @GetMapping("/admin")
     public String adminPanel() {
         return "admin";

@@ -4,7 +4,9 @@ import com.example.demo.model.User;
 import com.example.demo.service.SteamService;
 import com.example.demo.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession; // Импорт сессии
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -27,36 +29,35 @@ public class AuthController {
         this.userDetailsService = userDetailsService;
     }
 
-    // 1. Игрок нажимает кнопку -> Летит на сайт Steam
     @GetMapping("/login")
     public RedirectView login() {
         return new RedirectView(steamService.getLoginUrl());
     }
 
-    // 2. Игрок возвращается -> Мы его проверяем и кидаем на главную
     @GetMapping("/callback")
     public String callback(HttpServletRequest request) {
-        // Проверяем, настоящий ли это Steam
         String steamId = steamService.verify(request.getParameterMap());
 
         if (steamId != null) {
-            // Если все честно:
-            // 1. Создаем игрока в базе (или находим старого)
-            String username = "Player_" + steamId.substring(steamId.length() - 5);
-            User user = userService.processSteamLogin(steamId, username);
+            String nickname = steamService.getSteamPersonaName(steamId);
+            User user = userService.processSteamLogin(steamId, nickname);
 
-            // 2. Говорим Spring Security: "Это свой, пропусти его"
             UserDetails userDetails = userDetailsService.loadUserByUsername(user.getUsername());
             UsernamePasswordAuthenticationToken authToken =
                     new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
-            SecurityContextHolder.getContext().setAuthentication(authToken);
+            // Создаем контекст безопасности
+            SecurityContext context = SecurityContextHolder.createEmptyContext();
+            context.setAuthentication(authToken);
+            SecurityContextHolder.setContext(context);
 
-            // 3. ПЕРЕНАПРАВЛЯЕМ НА ГЛАВНУЮ СТРАНИЦУ (Где игры)
+            // ВАЖНО: Сохраняем контекст в сессию вручную, чтобы не терялся при редиректе
+            HttpSession session = request.getSession(true);
+            session.setAttribute("SPRING_SECURITY_CONTEXT", context);
+
             return "redirect:/";
         }
 
-        // Если ошибка - кидаем обратно на логин
         return "redirect:/login?error";
     }
 }
