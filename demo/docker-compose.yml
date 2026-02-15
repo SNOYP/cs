@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  # База данных
+  postgresql:
+    image: postgres:13
+    container_name: casino-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 2204
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    restart: always
+
+  # Интерфейс управления базой (pgAdmin)
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: pgadmin4@pgadmin.org
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    restart: always
+    depends_on:
+      - postgresql

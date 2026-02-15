@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Crash Game | SkinCasino</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root { --bg: #121212; --panel: #1e1e1e; --accent: #ff9800; --danger: #ff4b2b; --success: #4caf50; }
+        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+
+        .game-wrapper { width: 90%; max-width: 900px; background: var(--panel); margin-top: 30px; border-radius: 15px; border: 1px solid #333; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+
+        /* Область графика */
+        .chart-area { position: relative; height: 350px; background: #161616; border-bottom: 2px solid #252525; overflow: hidden; }
+        #crashCanvas { width: 100%; height: 100%; }
+
+        .multiplier { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 80px; font-weight: 900; color: white; text-shadow: 0 0 20px rgba(255,152,0,0.4); z-index: 10; }
+
+        /* Панель ставок */
+        .bet-panel { padding: 25px; display: flex; gap: 15px; align-items: center; justify-content: center; background: #1a1a1a; }
+        input { background: #252525; border: 1px solid #444; color: white; padding: 12px; border-radius: 8px; font-size: 16px; outline: none; width: 150px; }
+        input:focus { border-color: var(--accent); }
+
+        button { padding: 12px 35px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.2s; text-transform: uppercase; }
+        .btn-bet { background: var(--accent); color: black; }
+        .btn-bet:hover { background: #e68900; transform: scale(1.02); }
+        .btn-cashout { background: var(--success); color: white; display: none; }
+        .btn-bet:disabled { background: #444; cursor: not-allowed; }
+
+        .back-link { margin-top: 20px; color: #888; text-decoration: none; font-size: 14px; }
+        .back-link:hover { color: var(--accent); }
+    </style>
+</head>
+<body>
+
+<div class="game-wrapper">
+    <div class="chart-area">
+        <canvas id="crashCanvas"></canvas>
+        <div class="multiplier" id="multiDisplay">1.00x</div>
+    </div>
+
+    <div class="bet-panel">
+        <div style="display:flex; flex-direction:column; gap:5px;">
+            <label style="font-size: 12px; color: #888;">Сумма ставки</label>
+            <input type="number" id="betAmount" value="10" min="1">
+        </div>
+
+        <button class="btn-bet" id="betBtn" onclick="requestPlay()">Поставить</button>
+        <button class="btn-cashout" id="cashBtn" onclick="cashOut()">Забрать</button>
+    </div>
+</div>
+
+<a href="/" class="back-link">← Вернуться в лобби</a>
+
+<script>
+    const canvas = document.getElementById('crashCanvas');
+    const ctx = canvas.getContext('2d');
+    const multiDisplay = document.getElementById('multiDisplay');
+    const betBtn = document.getElementById('betBtn');
+    const cashBtn = document.getElementById('cashBtn');
+
+    let multiplier = 1.00;
+    let isRunning = false;
+    let crashPoint = 0;
+    let startTime = 0;
+    let animationId;
+
+    // Подстройка размера холста под экран
+    function resize() {
+        canvas.width = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+    }
+    window.onresize = resize;
+    resize();
+
+    // Запрос к серверу на начало игры
+    async function requestPlay() {
+        const bet = document.getElementById('betAmount').value;
+
+        try {
+            // Отправляем запрос на сервер (адрес мы создали в CrashController)
+            const response = await fetch(`/api/crash/play?bet=${bet}`, { method: 'POST' });
+            const data = await response.json();
+
+            if (data.error) {
+                alert(data.error);
+                return;
+            }
+
+            crashPoint = data.crashPoint; // Сервер прислал, где случится БАБАХ
+            startFlight();
+        } catch (e) {
+            alert("Ошибка связи с сервером");
+        }
+    }
+
+    function startFlight() {
+        isRunning = true;
+        multiplier = 1.00;
+        startTime = Date.now();
+
+        betBtn.style.display = 'none';
+        cashBtn.style.display = 'block';
+        multiDisplay.style.color = 'white';
+
+        animate();
+    }
+
+    function animate() {
+        if (!isRunning) return;
+
+        let elapsed = (Date.now() - startTime) / 1000;
+
+        // Математика роста: ускоряется со временем
+        // В начале растет медленно, потом летит вверх
+        multiplier = Math.pow(1.07, elapsed);
+
+        if (multiplier >= crashPoint) {
+            boom();
+            return;
+        }
+
+        draw(elapsed);
+        multiDisplay.innerText = multiplier.toFixed(2) + 'x';
+
+        animationId = requestAnimationFrame(animate);
+    }
+
+    function draw(time) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        ctx.beginPath();
+        ctx.lineWidth = 5;
+        ctx.strokeStyle = '#ff9800';
+        ctx.lineCap = 'round';
+
+        // Рисуем кривую роста
+        ctx.moveTo(0, canvas.height);
+        for (let i = 0; i < time; i += 0.05) {
+            let x = (i / 15) * canvas.width; // Масштаб по горизонтали
+            let y = canvas.height - (Math.pow(1.07, i) - 1) * 40; // Масштаб по вертикали
+            ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+
+        // Точка в конце линии
+        let headX = (time / 15) * canvas.width;
+        let headY = canvas.height - (multiplier - 1) * 40;
+        ctx.fillStyle = 'white';
+        ctx.beginPath();
+        ctx.arc(headX, headY, 5, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    function cashOut() {
+        if (!isRunning) return;
+        isRunning = false;
+        cancelAnimationFrame(animationId);
+
+        multiDisplay.style.color = '#4caf50';
+        alert("Выигрыш: " + (document.getElementById('betAmount').value * multiplier).toFixed(0) + " монет!");
+        resetUI();
+    }
+
+    function boom() {
+        isRunning = false;
+        multiDisplay.innerText = "CRASHED @ " + crashPoint.toFixed(2);
+        multiDisplay.style.color = '#ff4b2b';
+        resetUI();
+    }
+
+    function resetUI() {
+        betBtn.style.display = 'block';
+        cashBtn.style.display = 'none';
+    }
+</script>
+
+</body>
+</html>

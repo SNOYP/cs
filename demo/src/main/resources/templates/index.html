@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>SkinCasino | CS2</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root { --bg: #121212; --panel: #1e1e1e; --accent: #ff9800; --text: #e0e0e0; }
+        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; margin: 0; overflow-x: hidden; }
+
+        header {
+            background: var(--panel);
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #333;
+        }
+
+        .user-panel {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: #252525;
+            padding: 5px 15px;
+            border-radius: 8px;
+        }
+
+        .balance { color: #4caf50; font-weight: bold; }
+        .logout-btn { color: #ff5252; text-decoration: none; transition: 0.2s; }
+        .logout-btn:hover { opacity: 0.7; }
+
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 40px;
+        }
+
+        .game-card {
+            background: var(--panel);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid #333;
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+
+        .game-card:hover { transform: translateY(-5px); border-color: var(--accent); }
+        .game-card i { font-size: 40px; color: var(--accent); margin-bottom: 15px; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div style="font-size: 20px; font-weight: 800; color: var(--accent);">SKINCASINO</div>
+
+    <div class="user-panel" th:if="${user != null}">
+        <div style="text-align: right;">
+            <div th:text="${user.username}" style="font-size: 14px;">User</div>
+            <div class="balance"><i class="fas fa-coins"></i> <span th:text="${user.balance}">0</span></div>
+        </div>
+        <a href="/logout" class="logout-btn"><i class="fas fa-power-off"></i></a>
+    </div>
+</header>
+
+<main class="game-grid">
+    <div class="game-card" onclick="location.href='/game/crash'" style="cursor: pointer;">
+        <i class="fas fa-circle-notch fa-spin-slow"></i>
+        <h3>Crash</h3>
+        <p>Нажми, чтобы играть</p>
+    </div>
+    <div class="game-card">
+        <i class="fas fa-republican"></i>
+        <h3>Coinflip</h3>
+        <p style="font-size: 12px; color: #888;">50/50 - Удвой или проиграй.</p>
+    </div>
+</main>
+
+</body>
+</html>
