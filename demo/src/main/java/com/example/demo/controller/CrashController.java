@@ -2,14 +2,14 @@ package com.example.demo.controller;
 
 import com.example.demo.model.User;
 import com.example.demo.repository.UserRepository;
-import com.example.demo.service.CrashService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.Map;
 
-@RestController // Используем RestController для AJAX-запросов
+@RestController
 @RequestMapping("/api/crash")
 public class CrashController {
 
@@ -21,24 +21,36 @@ public class CrashController {
         this.userRepository = userRepository;
     }
 
-    @PostMapping("/play")
-    public Map<String, Object> play(@RequestParam Long bet, @AuthenticationPrincipal UserDetails userDetails) {
+    @GetMapping("/status")
+    public Map<String, Object> getStatus(@AuthenticationPrincipal UserDetails userDetails) {
+        Map<String, Object> status = crashService.getStatus(userDetails.getUsername());
+
         User user = userRepository.findByUsername(userDetails.getUsername()).orElseThrow();
 
-        if (user.getBalance() < bet) {
-            return Map.of("error", "Недостаточно монет!");
+        // Создаем новый HashMap на основе статуса и добавляем баланс
+        Map<String, Object> response = new HashMap<>(status);
+        response.put("balance", user.getBalance());
+
+        return response;
+    }
+
+    @PostMapping("/bet")
+    public Map<String, Object> bet(@RequestParam Long amount, @AuthenticationPrincipal UserDetails userDetails) {
+        try {
+            crashService.placeBet(userDetails.getUsername(), amount);
+            return Map.of("success", true);
+        } catch (Exception e) {
+            return Map.of("error", e.getMessage());
         }
+    }
 
-        // Снимаем ставку сразу
-        user.setBalance(user.getBalance() - bet);
-        userRepository.save(user);
-
-        // Генерируем точку краша
-        double crashPoint = crashService.generateCrashPoint();
-
-        return Map.of(
-                "crashPoint", crashPoint,
-                "newBalance", user.getBalance()
-        );
+    @PostMapping("/cashout")
+    public Map<String, Object> cashout(@AuthenticationPrincipal UserDetails userDetails) {
+        try {
+            crashService.cashOut(userDetails.getUsername());
+            return Map.of("success", true);
+        } catch (Exception e) {
+            return Map.of("error", e.getMessage());
+        }
     }
 }
