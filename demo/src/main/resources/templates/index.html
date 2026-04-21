@@ -5,129 +5,98 @@
     <title>SkinCasino | Главная</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        /* --- ЕДИНЫЙ СТИЛЬ --- */
         :root {
-            --bg-body: #13151b;
-            --bg-panel: #1d202b;
+            --bg-body: #0b0c11;
+            --bg-card: #13151c;
+            --bg-input: #090a0e;
             --accent-blue: #3d7fff;
             --accent-cyan: #00e7ff;
+            --accent-yellow: #ffcc00;
             --accent-green: #54b947;
-            --accent-red: #ff4b2b;
             --text-main: #ffffff;
             --text-sec: #767c91;
+            --card-border: #1e222d;
             --border-radius: 12px;
         }
 
         body {
             background: var(--bg-body);
             color: var(--text-main);
-            font-family: 'Segoe UI', sans-serif;
-            margin: 0;
-            overflow-x: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0; padding: 0; overflow-x: hidden; display: flex; flex-direction: column; min-height: 100vh;
         }
 
         /* --- ШАПКА --- */
         header {
-            background: var(--bg-panel);
-            padding: 0 25px;
-            height: 70px; /* Чуть увеличили высоту шапки */
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #2a2e3d;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            background: var(--bg-card);
+            padding: 0 25px; height: 70px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--card-border);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
         }
-        .logo { font-size: 24px; font-weight: 800; color: var(--accent-cyan); text-transform: uppercase; letter-spacing: 1px; text-decoration: none; }
+
+        .logo {
+            font-size: 24px; font-weight: 800; color: var(--accent-cyan);
+            text-transform: uppercase; letter-spacing: 1px; text-decoration: none;
+            text-shadow: 0 0 10px rgba(0, 231, 255, 0.3);
+        }
+
+        .header-actions { display: flex; align-items: center; gap: 20px; }
+
+        /* КНОПКА ДЕПОЗИТА */
+        .deposit-btn-header {
+            background: linear-gradient(135deg, var(--accent-green) 0%, #439638 100%);
+            color: white; font-weight: 800; padding: 10px 20px; border-radius: 8px;
+            text-decoration: none; text-transform: uppercase; font-size: 14px;
+            box-shadow: 0 4px 15px rgba(84, 185, 71, 0.2); transition: 0.2s;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .deposit-btn-header:hover { box-shadow: 0 6px 20px rgba(84, 185, 71, 0.4); transform: translateY(-2px); }
 
         .user-panel {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            background: #151820;
-            padding: 8px 20px;
-            border-radius: 40px;
-            border: 1px solid #2a2e3d;
+            display: flex; align-items: center; gap: 20px;
+            background: var(--bg-input); padding: 6px 15px 6px 20px;
+            border-radius: 40px; border: 1px solid var(--card-border);
         }
 
-        /* Ссылка на профиль */
-        .profile-link {
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 15px; /* Больше отступ между аватаркой и текстом */
-            color: white;
-            transition: 0.2s;
-        }
+        .profile-link { text-decoration: none; display: flex; align-items: center; gap: 15px; color: white; transition: 0.2s; }
         .profile-link:hover { opacity: 0.8; }
 
-        /* УВЕЛИЧЕННАЯ АВАТАРКА */
         .header-avatar {
-            width: 48px; /* Было 32px */
-            height: 48px;
-            border-radius: 50%;
-            border: 2px solid var(--accent-blue);
-            object-fit: cover;
-            box-shadow: 0 0 10px rgba(61, 127, 255, 0.2);
+            width: 42px; height: 42px;
+            border-radius: 50%; border: 2px solid var(--accent-blue);
+            object-fit: cover; box-shadow: 0 0 10px rgba(61, 127, 255, 0.2);
         }
 
-        .user-text { text-align: right; line-height: 1.3; }
+        .user-text { text-align: right; line-height: 1.2; }
+        .username-text { font-size: 14px; font-weight: 800; color: white; letter-spacing: 0.5px; }
 
-        /* УВЕЛИЧЕННОЕ ИМЯ */
-        .username-text {
-            font-size: 16px; /* Было 13px */
-            font-weight: 700;
-            color: white;
-            letter-spacing: 0.5px;
-        }
+        .balance { color: var(--accent-yellow); font-weight: bold; font-size: 13px; margin-top: 3px; display: flex; align-items: center; gap: 5px;}
+        .balance i { color: var(--accent-yellow); }
 
-        .balance { color: var(--accent-green); font-weight: bold; font-size: 14px; }
+        .logout-btn { color: #ff4b2b; font-size: 18px; transition: 0.2s; margin-left: 10px;}
+        .logout-btn:hover { color: #ff5252; text-shadow: 0 0 10px rgba(255, 75, 43, 0.4); }
 
         /* --- СЕТКА ИГР --- */
-        .game-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 25px;
-            padding: 40px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
+        .game-wrapper { flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px 20px; }
+        .game-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 30px; max-width: 1000px; width: 100%; }
 
         .game-card {
-            background: var(--bg-panel);
-            border-radius: var(--border-radius);
-            padding: 30px;
-            text-align: center;
-            border: 1px solid #2f3447;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            text-decoration: none;
-            color: white;
-            display: block;
+            background: var(--bg-card); border-radius: var(--border-radius); padding: 50px 30px;
+            width: 260px; text-align: center; border: 1px solid var(--card-border);
+            transition: all 0.3s ease; cursor: pointer; text-decoration: none; color: white;
+            display: flex; flex-direction: column; align-items: center; box-shadow: 0 5px 20px rgba(0,0,0,0.2);
         }
 
-        .game-card:hover {
-            transform: translateY(-5px);
-            border-color: var(--accent-blue);
-            box-shadow: 0 10px 30px rgba(61, 127, 255, 0.15);
-        }
+        .game-card:hover { transform: translateY(-8px); border-color: var(--accent-blue); box-shadow: 0 15px 35px rgba(61, 127, 255, 0.15); }
 
-        .game-card i {
-            font-size: 50px;
-            color: var(--accent-blue);
-            margin-bottom: 20px;
-            transition: 0.3s;
-        }
+        .game-card i { font-size: 60px; color: var(--accent-blue); margin-bottom: 25px; transition: 0.3s; }
+        .game-card.crash:hover i { color: var(--accent-cyan); text-shadow: 0 0 20px rgba(0, 231, 255, 0.5); }
+        .game-card.coinflip i { color: #ff9900; }
+        .game-card.coinflip:hover i { color: var(--accent-yellow); text-shadow: 0 0 20px rgba(255, 204, 0, 0.5); }
 
-        .game-card:hover i {
-            color: var(--accent-cyan);
-            text-shadow: 0 0 15px var(--accent-cyan);
-        }
-
-        .game-card h3 { margin: 0 0 10px 0; font-size: 20px; text-transform: uppercase; letter-spacing: 1px; }
-        .game-card p { color: var(--text-sec); font-size: 14px; margin: 0; }
+        .game-card h3 { margin: 0 0 10px 0; font-size: 22px; text-transform: uppercase; letter-spacing: 1px; font-weight: 800; }
+        .game-card p { color: var(--text-sec); font-size: 14px; margin: 0; line-height: 1.5; }
     </style>
 </head>
 <body>
@@ -135,33 +104,46 @@
 <header>
     <a href="/" class="logo"><i class="fas fa-rocket" style="margin-right: 8px;"></i> SkinCasino</a>
 
-    <div class="user-panel" th:if="${user != null}">
-        <a href="/profile" class="profile-link">
-            <img th:src="${user.avatarUrl != null ? user.avatarUrl : 'https://avatars.steamstatic.com/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_full.jpg'}" class="header-avatar" alt="Ava">
+    <div class="header-actions">
+        <a th:if="${user != null}" href="/deposit" class="deposit-btn-header"><i class="fas fa-plus-circle"></i> Депозит</a>
 
-            <div class="user-text">
-                <div th:text="${user.username}" class="username-text">User</div>
-                <div class="balance"><i class="fas fa-coins"></i> <span th:text="${user.balance}">0</span></div>
-            </div>
-        </a>
+        <div class="user-panel" th:if="${user != null}">
+            <a href="/profile" class="profile-link">
+                <img th:src="${user.avatarUrl != null ? user.avatarUrl : 'https://avatars.steamstatic.com/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_full.jpg'}" class="header-avatar" alt="Ava">
+                <div class="user-text">
+                    <div th:text="${user.username}" class="username-text">User</div>
+                    <div class="balance"><i class="fas fa-coins"></i> <span th:text="${user.balance}">0</span></div>
+                </div>
+            </a>
 
-        <a href="/logout" style="color: #ff5252; margin-left: 15px; font-size: 20px;"><i class="fas fa-sign-out-alt"></i></a>
+            <a href="/logout" class="logout-btn" title="Выйти"><i class="fas fa-sign-out-alt"></i></a>
+        </div>
+
+        <div th:if="${user == null}">
+            <a href="/login" style="color: var(--accent-cyan); text-decoration: none; font-weight: bold; border: 1px solid var(--accent-cyan); padding: 8px 20px; border-radius: 6px; transition: 0.2s;">
+                ВОЙТИ
+            </a>
+        </div>
     </div>
 </header>
 
-<main class="game-grid">
-    <a href="/game/crash" class="game-card">
-        <i class="fas fa-chart-line"></i>
-        <h3>Crash</h3>
-        <p>Успей забрать до краша!</p>
-    </a>
+<div class="game-wrapper">
+    <main class="game-grid">
 
-    <div class="game-card" style="opacity: 0.7; cursor: not-allowed;">
-        <i class="fas fa-coins"></i>
-        <h3>Coinflip</h3>
-        <p>Скоро... 50/50 - Удвой или проиграй.</p>
-    </div>
-</main>
+        <a href="/game/crash" class="game-card crash">
+            <i class="fas fa-chart-line"></i>
+            <h3>Crash</h3>
+            <p>Успей забрать до краша!</p>
+        </a>
+
+        <a href="/game/coinflip" class="game-card coinflip">
+            <i class="fas fa-coins"></i>
+            <h3>Coinflip</h3>
+            <p>Удвой или проиграй.</p>
+        </a>
+
+    </main>
+</div>
 
 </body>
 </html>

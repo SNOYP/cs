@@ -18,6 +18,11 @@ public class User {
     private String avatarUrl;
     private String tradeUrl;
 
+    // --- ИСПРАВЛЕНИЕ ОШИБКИ БАЗЫ ДАННЫХ ---
+    // Явно указываем PostgreSQL, что по умолчанию значение false
+    @Column(columnDefinition = "boolean default false")
+    private boolean isBanned = false;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_promo_codes",
@@ -28,7 +33,6 @@ public class User {
 
     public User() {}
 
-    // Геттеры и сеттеры
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getUsername() { return username; }
@@ -47,4 +51,8 @@ public class User {
     public void setTradeUrl(String tradeUrl) { this.tradeUrl = tradeUrl; }
     public Set<PromoCode> getUsedPromoCodes() { return usedPromoCodes; }
     public void setUsedPromoCodes(Set<PromoCode> usedPromoCodes) { this.usedPromoCodes = usedPromoCodes; }
+
+    // Геттер и сеттер для бана
+    public boolean isBanned() { return isBanned; }
+    public void setBanned(boolean banned) { isBanned = banned; }
 }

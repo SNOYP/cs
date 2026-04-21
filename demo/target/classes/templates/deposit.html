@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>P2P Депозит | SkinCasino</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root { --bg-body: #0b0c11; --bg-panel: #13151c; --bg-input: #090a0e; --accent-blue: #3d7fff; --accent-cyan: #00e7ff; --accent-yellow: #ffcc00; --accent-green: #54b947; --text-main: #ffffff; --text-sec: #767c91; --card-border: #1e222d; --border-radius: 12px; }
+        body { background: var(--bg-body); color: var(--text-main); font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; padding: 0; display: flex; flex-direction: column; min-height: 100vh; }
+        header { background: var(--bg-panel); padding: 0 25px; height: 70px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--card-border); position: sticky; top: 0; z-index: 100; }
+        .logo { font-size: 24px; font-weight: 800; color: var(--accent-cyan); text-transform: uppercase; text-decoration: none; }
+        .user-panel { display: flex; align-items: center; gap: 20px; background: var(--bg-input); padding: 6px 15px 6px 20px; border-radius: 40px; border: 1px solid var(--card-border); }
+        .header-avatar { width: 42px; height: 42px; border-radius: 50%; border: 2px solid var(--accent-blue); object-fit: cover; }
+        .balance { color: var(--accent-yellow); font-weight: bold; font-size: 13px; display: flex; align-items: center; gap: 5px; margin-top: 3px;}
+
+        .inventory-wrapper { padding: 40px 20px; max-width: 1200px; margin: 0 auto; flex: 1; width: 100%; box-sizing: border-box; padding-bottom: 120px; }
+        .ban-warning { background: rgba(255, 75, 43, 0.1); border: 1px solid rgba(255, 75, 43, 0.4); border-left: 5px solid #ff4b2b; color: white; padding: 15px 20px; border-radius: 8px; margin-bottom: 25px; font-size: 14px; }
+
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .page-title { font-size: 24px; font-weight: 800; text-transform: uppercase; }
+
+        /* КНОПКА СИНХРОНИЗАЦИИ */
+        .sync-btn { background: var(--bg-input); border: 1px solid var(--accent-blue); color: var(--accent-cyan); padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; display: flex; align-items: center; gap: 10px; }
+        .sync-btn:hover { background: var(--accent-blue); color: white; }
+        .sync-btn i.spinning { animation: spin 1s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        .inventory-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
+        .item-card { background: var(--bg-panel); border: 1px solid var(--card-border); border-radius: var(--border-radius); padding: 15px; text-align: center; cursor: pointer; transition: 0.2s; position: relative; }
+        .item-card:hover { transform: translateY(-3px); border-color: var(--accent-blue); }
+        .item-card.selected { border: 2px solid var(--accent-cyan); background: rgba(0, 231, 255, 0.05); }
+        .item-img { width: 100%; height: 120px; object-fit: contain; margin-bottom: 10px; }
+        .item-name { font-size: 13px; font-weight: bold; color: white; height: 35px; overflow: hidden; }
+        .price-box { background: var(--bg-input); padding: 8px; border-radius: 6px; margin-top: 10px; }
+        .price-usd { color: var(--text-sec); font-size: 11px; }
+        .price-coins { color: var(--accent-yellow); font-size: 15px; font-weight: 800; }
+
+        .bottom-panel { position: fixed; bottom: 0; left: 0; width: 100%; background: #171a21; border-top: 2px solid var(--accent-blue); padding: 20px 40px; box-sizing: border-box; display: flex; justify-content: space-between; align-items: center; transform: translateY(100%); transition: 0.3s; z-index: 100; }
+        .bottom-panel.active { transform: translateY(0); }
+        .btn-confirm { background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan)); color: black; border: none; padding: 15px 40px; border-radius: 8px; font-size: 16px; font-weight: 900; text-transform: uppercase; cursor: pointer; }
+
+        .loader-container { text-align: center; padding: 50px; grid-column: 1/-1; }
+    </style>
+</head>
+<body>
+
+<header>
+    <a href="/" class="logo"><i class="fas fa-rocket"></i> SkinCasino</a>
+    <div class="user-panel">
+        <div class="user-text">
+            <div th:text="${user.username}" class="username-text"></div>
+            <div class="balance"><i class="fas fa-coins"></i> <span id="userBalance" th:text="${user.balance}">0</span></div>
+        </div>
+        <img th:src="${user.avatarUrl}" class="header-avatar">
+    </div>
+</header>
+
+<div class="inventory-wrapper">
+    <div class="ban-warning">
+        <strong><i class="fas fa-exclamation-triangle"></i> ВНИМАНИЕ:</strong> Попытка обмана или возврат трейда — <b>БАН НАВСЕГДА</b>.
+    </div>
+
+    <div class="page-header">
+        <h1 class="page-title">Ваш инвентарь</h1>
+        <button class="sync-btn" onclick="syncInventory()" id="syncBtn">
+            <i class="fas fa-sync-alt" id="syncIcon"></i> Синхронизировать
+        </button>
+    </div>
+
+    <div class="inventory-grid" id="inventoryGrid">
+        <div class="loader-container"><i class="fas fa-circle-notch fa-spin" style="font-size:40px; color:var(--accent-blue)"></i></div>
+    </div>
+</div>
+
+<div class="bottom-panel" id="bottomPanel">
+    <div style="display:flex; gap:30px">
+        <div><small>ВЫБРАНО</small><br><b id="selectedCount">0</b></div>
+        <div><small>ВЫ ПОЛУЧИТЕ</small><br><b id="totalCoins" style="color:var(--accent-yellow); font-size:20px">0</b></div>
+    </div>
+    <button class="btn-confirm" onclick="processDeposit()">ОТПРАВИТЬ ТРЕЙД</button>
+</div>
+
+<script>
+    const COIN_RATE = 1200;
+    let inventoryData = [];
+    let selectedIds = new Set();
+
+    async function syncInventory() {
+        const btn = document.getElementById('syncBtn');
+        const icon = document.getElementById('syncIcon');
+        btn.disabled = true;
+        icon.classList.add('spinning');
+
+        await fetchInventory();
+
+        setTimeout(() => {
+            btn.disabled = false;
+            icon.classList.remove('spinning');
+        }, 1000);
+    }
+
+    async function fetchInventory() {
+        try {
+            const response = await fetch('/api/inventory');
+            inventoryData = await response.json();
+            render();
+        } catch (e) { document.getElementById('inventoryGrid').innerHTML = 'Ошибка загрузки'; }
+    }
+
+    function render() {
+        const grid = document.getElementById('inventoryGrid');
+        grid.innerHTML = '';
+        inventoryData.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'item-card';
+            if(selectedIds.has(item.id)) card.classList.add('selected');
+            card.onclick = () => {
+                if(selectedIds.has(item.id)) { selectedIds.delete(item.id); card.classList.remove('selected'); }
+                else { selectedIds.add(item.id); card.classList.add('selected'); }
+                updatePanel();
+            };
+            card.innerHTML = `<img src="${item.img}" class="item-img"><div class="item-name">${item.name}</div><div class="price-box"><div class="price-usd">$${item.priceUsd.toFixed(2)}</div><div class="price-coins"><i class="fas fa-coins"></i> ${(item.priceUsd * COIN_RATE).toFixed(0)}</div></div>`;
+            grid.appendChild(card);
+        });
+    }
+
+    function updatePanel() {
+        const panel = document.getElementById('bottomPanel');
+        panel.classList.toggle('active', selectedIds.size > 0);
+        let total = 0;
+        selectedIds.forEach(id => total += inventoryData.find(i => i.id === id).priceUsd);
+        document.getElementById('selectedCount').innerText = selectedIds.size;
+        document.getElementById('totalCoins').innerText = (total * COIN_RATE).toFixed(0);
+    }
+
+    async function processDeposit() {
+        const total = document.getElementById('totalCoins').innerText;
+        const res = await fetch(`/api/deposit/create?amountCoins=${total}`, { method: 'POST' });
+        const data = await res.json();
+        if(data.success) {
+            window.open('https://steamcommunity.com/profiles/76561198778619384/', '_blank');
+            alert("Заявка создана! Отправьте трейд боту.");
+            location.reload();
+        } else alert(data.error);
+    }
+
+    fetchInventory();
+</script>
+</body>
+</html>

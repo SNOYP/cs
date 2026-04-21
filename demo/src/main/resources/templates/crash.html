@@ -217,6 +217,15 @@
         }
         .btn-bet:hover { box-shadow: 0 0 20px rgba(61, 127, 255, 0.4); }
 
+        /* КРАСНАЯ КНОПКА ОТМЕНЫ */
+        .btn-cancel {
+            background: linear-gradient(135deg, var(--accent-red) 0%, #c62828 100%);
+            color: white;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 15px rgba(255, 75, 43, 0.3);
+        }
+        .btn-cancel:hover { box-shadow: 0 6px 20px rgba(255, 75, 43, 0.5); transform: translateY(-2px); }
+
         .btn-cashout {
             background: linear-gradient(135deg, var(--accent-green) 0%, #439638 100%);
             color: white;
@@ -415,6 +424,7 @@
     let gameState = "UNKNOWN";
     let currentBalance = 0;
     let slotState = { 1: 0, 2: 0 };
+    let placedBetAmounts = { 1: 0, 2: 0 };
     let autoCashoutTargets = { 1: null, 2: null };
     let flightStartTime = 0;
     let waitingEndTime = 0;
@@ -464,6 +474,7 @@
             [1, 2].forEach(slot => {
                 let bet = myBets.find(b => b.slot === slot);
                 if (bet) {
+                    placedBetAmounts[slot] = bet.amount;
                     if (bet.profit != null) slotState[slot] = 3;
                     else if (data.status === "RUNNING") slotState[slot] = 2;
                     else if (data.status === "CRASHED") slotState[slot] = 4;
@@ -581,9 +592,9 @@
                     btn.innerText = "СДЕЛАТЬ СТАВКУ";
                     btn.disabled = false;
                 } else {
-                    btn.className = "action-btn btn-waiting";
-                    btn.innerText = "СТАВКА ПРИНЯТА...";
-                    btn.disabled = true;
+                    btn.className = "action-btn btn-cancel";
+                    btn.innerText = "ОТМЕНА (" + placedBetAmounts[slot] + ")";
+                    btn.disabled = false;
                 }
             } else if (gameState === "RUNNING") {
                 if (state === 2) {
@@ -611,21 +622,37 @@
 
     function doAction(slot) {
         if (gameState === "WAITING") {
-            let amount = document.getElementById('betInput' + slot).value;
-            let autoVal = parseFloat(document.getElementById('autoCashout' + slot).value);
+            if (slotState[slot] === 0) {
+                let amount = document.getElementById('betInput' + slot).value;
+                let autoVal = parseFloat(document.getElementById('autoCashout' + slot).value);
 
-            if (autoVal && autoVal > 1.0) {
-                autoCashoutTargets[slot] = autoVal;
-            } else {
-                autoCashoutTargets[slot] = null;
+                if (autoVal && autoVal > 1.0) {
+                    autoCashoutTargets[slot] = autoVal;
+                } else {
+                    autoCashoutTargets[slot] = null;
+                }
+
+                fetch(`/api/crash/bet?amount=${amount}&slot=${slot}`, { method: 'POST' })
+                    .then(r => r.json())
+                    .then(d => {
+                        if (d.success) {
+                            slotState[slot] = 1;
+                            placedBetAmounts[slot] = amount;
+                            updateButtons(1.0);
+                        }
+                        else alert(d.error);
+                    });
+            } else if (slotState[slot] === 1) {
+                fetch(`/api/crash/cancel?slot=${slot}`, { method: 'POST' })
+                    .then(r => r.json())
+                    .then(d => {
+                        if (d.success) {
+                            slotState[slot] = 0;
+                            updateButtons(1.0);
+                        }
+                        else alert(d.error);
+                    });
             }
-
-            fetch(`/api/crash/bet?amount=${amount}&slot=${slot}`, { method: 'POST' })
-                .then(r => r.json())
-                .then(d => {
-                    if (d.success) slotState[slot] = 1;
-                    else alert(d.error);
-                });
         } else if (gameState === "RUNNING") {
             fetch(`/api/crash/cashout?slot=${slot}`, { method: 'POST' })
                 .then(r => r.json())

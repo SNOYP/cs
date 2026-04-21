@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Coinflip | SkinCasino</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg-body: #13151b;
+            --bg-panel: #1d202b;
+            --bg-input: #151820;
+            --accent-blue: #3d7fff;
+            --accent-cyan: #00e7ff;
+            --accent-green: #54b947;
+            --accent-red: #ff4b2b;
+            --text-main: #ffffff;
+            --text-sec: #767c91;
+            --border-radius: 12px;
+        }
+
+        html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; }
+        body { background: var(--bg-body); color: var(--text-main); font-family: 'Segoe UI', Roboto, sans-serif; display: flex; flex-direction: column; }
+
+        /* --- ШАПКА --- */
+        header { background: var(--bg-panel); padding: 0 25px; height: 60px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #2a2e3d; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 10; }
+        .logo { font-size: 22px; font-weight: 800; color: var(--accent-cyan); text-transform: uppercase; text-decoration: none; }
+        .user-panel { display: flex; align-items: center; gap: 15px; background: #151820; padding: 5px 15px; border-radius: 30px; border: 1px solid #2a2e3d; }
+        .profile-link { text-decoration: none; display: flex; align-items: center; gap: 10px; color: white; transition: 0.2s; }
+        .profile-link:hover { opacity: 0.8; }
+        .header-avatar { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--accent-blue); object-fit: cover; }
+        .user-text { text-align: right; line-height: 1.2; }
+        .username-text { font-size: 13px; color: white; font-weight: 600; }
+
+        /* Баланс на этой странице синий */
+        .balance { color: var(--accent-cyan); font-weight: bold; font-size: 14px; display: flex; align-items: center; gap: 5px; }
+        .balance i { color: var(--accent-blue); }
+
+        /* --- ИГРОВОЕ ПОЛЕ --- */
+        .main-layout {
+            display: flex; flex: 1; justify-content: center; align-items: center;
+            background: radial-gradient(circle at center, #242836 0%, #13151b 100%);
+        }
+
+        .game-box {
+            background: var(--bg-panel);
+            padding: 40px;
+            border-radius: var(--border-radius);
+            border: 1px solid #2f3447;
+            width: 400px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+        }
+
+        .game-title { color: white; text-transform: uppercase; font-size: 22px; font-weight: 800; letter-spacing: 1px; margin-top: 0; }
+
+        /* --- 3D МОНЕТКА (ИСПРАВЛЕНА: СИНЯЯ СТОРОНА default) --- */
+        .coin-container {
+            width: 150px; height: 150px;
+            perspective: 1000px;
+            margin: 40px auto;
+        }
+        .coin {
+            width: 100%; height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            transform: rotateY(0deg); /* СИНЯЯ СТОРОНА default */
+        }
+        .coin-face {
+            width: 100%; height: 100%;
+            position: absolute;
+            backface-visibility: hidden;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 50px; font-weight: 900;
+            border: 6px solid #13151b;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5) inset, 0 10px 20px rgba(0,0,0,0.5);
+        }
+
+        /* CT СТОРОНА (СИНЯЯ, default) */
+        .face-ct { background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan)); color: white; transform: rotateY(0deg); }
+
+        /* T СТОРОНА (КРАСНАЯ) */
+        .face-t { background: linear-gradient(135deg, var(--accent-red), #ff416c); color: white; transform: rotateY(180deg); }
+
+        .result-text { font-size: 16px; font-weight: 700; color: var(--text-sec); margin-bottom: 25px; height: 20px; text-transform: uppercase;}
+
+        /* --- КОНТРОЛЛЫ --- */
+        .side-selector { display: flex; gap: 10px; margin-bottom: 20px; }
+        .side-btn {
+            flex: 1; padding: 15px; border-radius: 8px; border: 2px solid #2f3447;
+            background: transparent; color: white; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 14px;
+        }
+        .side-btn.ct:hover { border-color: var(--accent-cyan); }
+        .side-btn.t:hover { border-color: var(--accent-red); }
+        .side-btn.ct.active { border-color: var(--accent-cyan); background: rgba(0, 231, 255, 0.1); box-shadow: 0 0 15px rgba(0, 231, 255, 0.2); }
+        .side-btn.t.active { border-color: var(--accent-red); background: rgba(255, 75, 43, 0.1); box-shadow: 0 0 15px rgba(255, 75, 43, 0.2); }
+
+        .input-row { display: flex; gap: 8px; margin-bottom: 20px; }
+        .custom-input { flex: 1; background: var(--bg-input); border: 1px solid #2f3447; color: white; padding: 12px; border-radius: 8px; font-size: 16px; font-weight: bold; text-align: center; outline: none; }
+        .custom-input:focus { border-color: var(--accent-blue); }
+        .ctrl-btn { background: #2f3447; border: none; color: white; padding: 0 15px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; }
+        .ctrl-btn:hover { background: #3d435a; }
+
+        .btn-play {
+            width: 100%; height: 55px; border: none; border-radius: 8px; font-weight: 800; font-size: 16px; cursor: pointer; text-transform: uppercase;
+            background: linear-gradient(135deg, var(--accent-green) 0%, #439638 100%); color: white; transition: 0.2s; box-shadow: 0 5px 15px rgba(84, 185, 71, 0.2);
+        }
+        .btn-play:hover { box-shadow: 0 8px 25px rgba(84, 185, 71, 0.4); transform: translateY(-2px); }
+        .btn-play:disabled { background: #353b4d; color: #666c80; cursor: not-allowed; box-shadow: none; transform: none; }
+
+    </style>
+</head>
+<body>
+
+<header>
+    <a href="/" class="logo"><i class="fas fa-rocket" style="margin-right: 8px;"></i> SkinCasino</a>
+    <div class="user-panel">
+        <a href="/profile" class="profile-link">
+            <img th:src="${user.avatarUrl != null ? user.avatarUrl : 'https://avatars.steamstatic.com/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_full.jpg'}" class="header-avatar" alt="Ava">
+            <div class="user-text">
+                <div th:text="${user.username}" class="username-text">User</div>
+                <div class="balance"><i class="fas fa-coins"></i> <span id="userBalance" th:text="${user.balance}">0</span></div>
+            </div>
+        </a>
+        <a href="/logout" style="color: #ff5252; margin-left: 10px; font-size: 18px;" title="Выйти"><i class="fas fa-sign-out-alt"></i></a>
+    </div>
+</header>
+
+<div class="main-layout">
+    <div class="game-box">
+        <h2 class="game-title">Coinflip 50/50</h2>
+
+        <div class="coin-container">
+            <div class="coin" id="coin">
+                <div class="coin-face face-ct">CT</div>
+                <div class="coin-face face-t">T</div>
+            </div>
+        </div>
+
+        <div class="result-text" id="resultText">Сделайте выбор</div>
+
+        <div class="side-selector">
+            <button class="side-btn ct active" id="btnCT" onclick="selectSide('CT')">CT (СИНИЕ)</button>
+            <button class="side-btn t" id="btnT" onclick="selectSide('T')">T (КРАСНЫЕ)</button>
+        </div>
+
+        <div class="input-row">
+            <button class="ctrl-btn" onclick="modBet('min')">MIN</button>
+            <input type="number" id="betInput" class="custom-input" value="100">
+            <button class="ctrl-btn" onclick="modBet('x2')">x2</button>
+            <button class="ctrl-btn" onclick="modBet('max')">MAX</button>
+        </div>
+
+        <button class="btn-play" id="playBtn" onclick="playGame()">БРОСИТЬ МОНЕТУ</button>
+    </div>
+</div>
+
+<script>
+    let selectedSide = 'CT';
+    let isPlaying = false;
+    let totalRotations = 0; // Накопленное вращение
+
+    function selectSide(side) {
+        if(isPlaying) return;
+        selectedSide = side;
+        document.getElementById('btnCT').classList.remove('active');
+        document.getElementById('btnT').classList.remove('active');
+        document.getElementById('btn' + side).classList.add('active');
+    }
+
+    function modBet(action) {
+        let input = document.getElementById('betInput');
+        let val = parseInt(input.value) || 0;
+        let currentBal = parseInt(document.getElementById('userBalance').innerText) || 0;
+
+        if (action === 'min') val = 10;
+        if (action === 'x2') val *= 2;
+        if (action === 'max') val = currentBal;
+        if (val < 10) val = 10;
+        input.value = val;
+    }
+
+    async function playGame() {
+        if(isPlaying) return;
+        let amount = parseInt(document.getElementById('betInput').value);
+        let currentBal = parseInt(document.getElementById('userBalance').innerText);
+
+        if(amount < 10) return alert("Минимальная ставка 10!");
+        if(amount > currentBal) return alert("Недостаточно монет!");
+
+        isPlaying = true;
+        document.getElementById('playBtn').disabled = true;
+        document.getElementById('resultText').innerText = "Монетка крутится...";
+        document.getElementById('resultText').style.color = "white";
+
+        // Визуально списываем деньги сразу
+        document.getElementById('userBalance').innerText = currentBal - amount;
+
+        try {
+            const res = await fetch(`/api/coinflip/play?amount=${amount}&side=${selectedSide}`, { method: 'POST' });
+            const data = await res.json();
+
+            if (data.error) {
+                alert(data.error);
+                document.getElementById('userBalance').innerText = currentBal; // возврат
+                resetUI();
+                return;
+            }
+
+            let winSide = data.winningSide;
+            let profit = data.profit;
+
+            // --- ИСПРАВЛЕННАЯ АНИМАЦИЯ ---
+            // 10 полных оборотов
+            let baseSpins = 10 * 360;
+
+            // Определяем финальный угол для стороны (CT=0, T=180)
+            let currentModulo = totalRotations % 360;
+            let neededFaceAngle = (winSide === 'CT') ? 0 : 180;
+
+            // Вычисляем, сколько градусов нужно добавить к базовым оборотам, чтобы прийти к нужному лицу
+            let angleToAdd = (neededFaceAngle - currentModulo + 360) % 360;
+
+            totalRotations += baseSpins + angleToAdd;
+
+            document.getElementById('coin').style.transform = `rotateY(${totalRotations}deg)`;
+
+            // Ждем завершения CSS анимации (3 сек)
+            setTimeout(() => {
+                document.getElementById('userBalance').innerText = data.newBalance;
+
+                if (profit > 0) {
+                    document.getElementById('resultText').innerText = `ПОБЕДА! +${profit} монет`;
+                    document.getElementById('resultText').style.color = "var(--accent-green)";
+                } else {
+                    document.getElementById('resultText').innerText = `ПРОИГРЫШ! -${amount} монет`;
+                    document.getElementById('resultText').style.color = "var(--accent-red)";
+                }
+                resetUI();
+            }, 3000);
+
+        } catch (e) {
+            console.error(e);
+            resetUI();
+        }
+    }
+
+    function resetUI() {
+        isPlaying = false;
+        document.getElementById('playBtn').disabled = false;
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>P2P Депозит | SkinCasino</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root { --bg-body: #0b0c11; --bg-panel: #13151c; --bg-input: #090a0e; --accent-blue: #3d7fff; --accent-cyan: #00e7ff; --accent-yellow: #ffcc00; --accent-green: #54b947; --text-main: #ffffff; --text-sec: #767c91; --card-border: #1e222d; --border-radius: 12px; }
+        body { background: var(--bg-body); color: var(--text-main); font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; padding: 0; display: flex; flex-direction: column; min-height: 100vh; }
+        header { background: var(--bg-panel); padding: 0 25px; height: 70px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--card-border); box-shadow: 0 4px 20px rgba(0,0,0,0.2); position: sticky; top: 0; z-index: 100; }
+        .logo { font-size: 24px; font-weight: 800; color: var(--accent-cyan); text-transform: uppercase; letter-spacing: 1px; text-decoration: none; text-shadow: 0 0 10px rgba(0, 231, 255, 0.3);}
+        .header-actions { display: flex; align-items: center; gap: 20px; }
+        .user-panel { display: flex; align-items: center; gap: 20px; background: var(--bg-input); padding: 6px 15px 6px 20px; border-radius: 40px; border: 1px solid var(--card-border); }
+        .profile-link { text-decoration: none; display: flex; align-items: center; gap: 15px; color: white; transition: 0.2s; }
+        .header-avatar { width: 42px; height: 42px; border-radius: 50%; border: 2px solid var(--accent-blue); object-fit: cover; }
+        .user-text { text-align: right; line-height: 1.2; }
+        .username-text { font-size: 14px; font-weight: 800; color: white; }
+        .balance { color: var(--accent-yellow); font-weight: bold; font-size: 13px; display: flex; align-items: center; gap: 5px; margin-top: 3px;}
+
+        .inventory-wrapper { padding: 40px 20px; max-width: 1200px; margin: 0 auto; flex: 1; width: 100%; box-sizing: border-box; padding-bottom: 120px; }
+
+        /* ПРЕДУПРЕЖДЕНИЕ О БАНЕ */
+        .ban-warning { background: rgba(255, 75, 43, 0.1); border: 1px solid rgba(255, 75, 43, 0.4); border-left: 5px solid #ff4b2b; color: white; padding: 15px 20px; border-radius: 8px; margin-bottom: 25px; line-height: 1.5; font-size: 14px; }
+        .ban-warning strong { color: #ff4b2b; font-size: 16px; text-transform: uppercase; display: block; margin-bottom: 5px;}
+
+        .page-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 30px; }
+        .page-title { font-size: 24px; font-weight: 800; margin: 0; text-transform: uppercase; display: flex; align-items: center; gap: 10px; }
+        .page-title i { color: var(--accent-blue); }
+        .rate-box { background: rgba(255, 204, 0, 0.1); border: 1px solid rgba(255, 204, 0, 0.3); color: var(--accent-yellow); padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 14px; display: flex; align-items: center; gap: 10px; }
+
+        .inventory-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
+        .loader-container { text-align: center; padding: 50px; color: var(--text-sec); grid-column: 1 / -1; }
+        .loader-spinner { font-size: 40px; color: var(--accent-blue); margin-bottom: 20px; animation: spin 1s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        .item-card { background: var(--bg-panel); border: 2px solid var(--card-border); border-radius: var(--border-radius); padding: 20px; text-align: center; cursor: pointer; transition: 0.2s; position: relative; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        .item-card.selected { border-color: var(--accent-cyan); background: rgba(0, 231, 255, 0.05); box-shadow: 0 0 20px rgba(0, 231, 255, 0.2); }
+        .item-card.selected::before { content: '\f00c'; font-family: 'Font Awesome 5 Free'; font-weight: 900; position: absolute; top: 10px; right: 10px; color: var(--accent-cyan); font-size: 18px; z-index: 5;}
+        .item-img { width: 140px; height: 100px; object-fit: contain; margin-bottom: 15px; transition: 0.3s;}
+        .item-card:hover .item-img { transform: scale(1.1); }
+        .item-name { font-size: 14px; font-weight: 700; margin-bottom: 5px; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .price-box { background: var(--bg-input); padding: 10px; border-radius: 8px; display: flex; flex-direction: column; gap: 5px; }
+        .price-usd { color: var(--text-sec); font-size: 13px; font-weight: bold; }
+        .price-coins { color: var(--accent-yellow); font-size: 16px; font-weight: 800; display: flex; justify-content: center; align-items: center; gap: 5px; }
+
+        .bottom-panel { position: fixed; bottom: 0; left: 0; width: 100%; background: #171a21; border-top: 2px solid var(--accent-blue); padding: 20px 40px; box-sizing: border-box; display: flex; justify-content: space-between; align-items: center; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 -10px 30px rgba(0,0,0,0.5); z-index: 100; }
+        .bottom-panel.active { transform: translateY(0); }
+        .panel-info { display: flex; gap: 40px; }
+        .info-block { display: flex; flex-direction: column; }
+        .info-label { color: var(--text-sec); font-size: 12px; text-transform: uppercase; font-weight: bold; margin-bottom: 5px; }
+        .info-value { color: white; font-size: 20px; font-weight: 800; }
+        .info-value.coins { color: var(--accent-yellow); display: flex; align-items: center; gap: 6px; }
+
+        .btn-confirm { background: linear-gradient(135deg, var(--accent-blue) 0%, var(--accent-cyan) 100%); color: #000; border: none; padding: 15px 40px; border-radius: 8px; font-size: 16px; font-weight: 900; text-transform: uppercase; cursor: pointer; box-shadow: 0 4px 15px rgba(0, 231, 255, 0.4); transition: 0.2s; display: flex; align-items: center; gap: 10px;}
+        .btn-confirm:hover { opacity: 0.9; box-shadow: 0 6px 20px rgba(0, 231, 255, 0.6); transform: translateY(-2px); }
+
+        .trade-status-box { display: none; align-items: center; gap: 15px; background: rgba(0,0,0,0.2); padding: 10px 20px; border-radius: 8px; border: 1px solid #2a2e3d; }
+        .trade-status-text { font-size: 14px; font-weight: bold; color: var(--accent-cyan); }
+    </style>
+</head>
+<body>
+
+<header>
+    <a href="/" class="logo"><i class="fas fa-rocket" style="margin-right: 8px;"></i> SkinCasino</a>
+    <div class="header-actions">
+        <div class="user-panel">
+            <a href="/profile" class="profile-link">
+                <img th:src="${user.avatarUrl != null ? user.avatarUrl : 'https://avatars.steamstatic.com/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_full.jpg'}" class="header-avatar" alt="Ava">
+                <div class="user-text">
+                    <div th:text="${user.username}" class="username-text">User</div>
+                    <div class="balance"><i class="fas fa-coins"></i> <span id="userBalance" th:text="${user.balance}">0</span></div>
+                </div>
+            </a>
+            <a href="/logout" style="color: #ff4b2b; margin-left: 10px; font-size: 18px;" title="Выйти"><i class="fas fa-sign-out-alt"></i></a>
+        </div>
+    </div>
+</header>
+
+<div class="inventory-wrapper">
+
+    <div class="ban-warning">
+        <strong><i class="fas fa-exclamation-triangle"></i> Внимание: Политика блокировок</strong>
+        Любая попытка обмана (отмена трейда после получения монет, подмена предметов в обмене, возврат средств) приведет к <b>ПЕРМАНЕНТНОЙ БЛОКИРОВКЕ</b> вашего аккаунта на сайте без возможности восстановления. Все обмены проверяются администратором вручную.
+    </div>
+
+    <div class="page-header">
+        <h1 class="page-title"><i class="fas fa-box-open"></i> P2P Депозит</h1>
+        <div class="rate-box"><i class="fas fa-exchange-alt"></i> 1 USD = 1200 Монет</div>
+    </div>
+
+    <div class="inventory-grid" id="inventoryGrid">
+        <div class="loader-container">
+            <i class="fas fa-circle-notch loader-spinner"></i>
+            <h2>Загружаем ваши предметы из Steam...</h2>
+        </div>
+    </div>
+</div>
+
+<div class="bottom-panel" id="bottomPanel">
+    <div class="panel-info" id="panelInfo">
+        <div class="info-block">
+            <span class="info-label">Выбрано предметов</span>
+            <span class="info-value" id="selectedCount">0</span>
+        </div>
+        <div class="info-block">
+            <span class="info-label">Вы получите</span>
+            <span class="info-value coins"><i class="fas fa-coins"></i> <span id="totalCoins">0</span></span>
+        </div>
+    </div>
+
+    <div class="trade-status-box" id="tradeStatusBox">
+        <i class="fas fa-circle-notch loader-spinner" id="tradeSpinner" style="font-size: 20px; margin: 0;"></i>
+        <span class="trade-status-text" id="tradeStatusText">Ожидание подтверждения Администратором...</span>
+    </div>
+
+    <button class="btn-confirm" id="confirmBtn" onclick="processDeposit()"><i class="fab fa-steam"></i> Отправить трейд</button>
+</div>
+
+<script>
+    const COIN_RATE = 1200;
+    let inventoryData = [];
+    let selectedItemIds = new Set();
+    let statusInterval = null;
+
+    async function fetchInventory() {
+        try {
+            const response = await fetch('/api/inventory');
+            inventoryData = await response.json();
+            renderInventory();
+        } catch (error) {
+            document.getElementById('inventoryGrid').innerHTML = `<div class="loader-container"><h2>Ошибка загрузки инвентаря.</h2></div>`;
+        }
+    }
+
+    function renderInventory() {
+        const grid = document.getElementById('inventoryGrid');
+        grid.innerHTML = '';
+
+        if (inventoryData.length === 0) {
+            grid.innerHTML = `<div class="loader-container"><h2>У вас нет скинов CS2, доступных для депозита.</h2></div>`;
+            return;
+        }
+
+        inventoryData.forEach(item => {
+            const coins = (item.priceUsd * COIN_RATE).toFixed(0);
+            let parts = item.name.split(' (');
+            let cleanName = parts[0];
+
+            const card = document.createElement('div');
+            card.className = 'item-card';
+            card.id = `item-${item.id}`;
+            card.onclick = () => toggleItem(item.id);
+
+            card.innerHTML = `
+                <img src="${item.img}" class="item-img" alt="${cleanName}">
+                <div class="item-name">${cleanName}</div>
+                <div class="price-box">
+                    <span class="price-usd">$${item.priceUsd.toFixed(2)}</span>
+                    <span class="price-coins"><i class="fas fa-coins"></i> ${coins}</span>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+    function toggleItem(id) {
+        if(statusInterval) return;
+        const card = document.getElementById(`item-${id}`);
+
+        if (selectedItemIds.has(id)) {
+            selectedItemIds.delete(id);
+            card.classList.remove('selected');
+        } else {
+            selectedItemIds.add(id);
+            card.classList.add('selected');
+        }
+        updateBottomPanel();
+    }
+
+    function updateBottomPanel() {
+        const panel = document.getElementById('bottomPanel');
+
+        if (selectedItemIds.size > 0) {
+            panel.classList.add('active');
+        } else {
+            panel.classList.remove('active');
+        }
+
+        let totalUsd = 0;
+        selectedItemIds.forEach(id => {
+            const item = inventoryData.find(i => i.id === id);
+            if(item) totalUsd += item.priceUsd;
+        });
+
+        document.getElementById('selectedCount').innerText = selectedItemIds.size;
+        document.getElementById('totalCoins').innerText = (totalUsd * COIN_RATE).toFixed(0);
+    }
+
+    async function processDeposit() {
+        if(selectedItemIds.size === 0) return;
+        const totalCoins = document.getElementById('totalCoins').innerText;
+
+        try {
+            const res = await fetch(`/api/deposit/create?amountCoins=${totalCoins}`, { method: 'POST' });
+            const data = await res.json();
+
+            if (data.error) {
+                alert(data.error);
+                if(data.error.includes("ЗАБЛОКИРОВАН")) {
+                    document.body.innerHTML = `<h1 style="color: red; text-align: center; margin-top: 20%;">АККАУНТ ЗАБЛОКИРОВАН</h1>`;
+                }
+                return;
+            }
+
+            // Открываем профиль бота для отправки трейда
+            window.open('https://steamcommunity.com/profiles/76561198778619384/', '_blank');
+
+            // Меняем UI
+            document.getElementById('confirmBtn').style.display = 'none';
+            document.getElementById('panelInfo').style.display = 'none';
+            document.getElementById('tradeStatusBox').style.display = 'flex';
+            document.getElementById('tradeStatusText').innerText = "Ожидание проверки Администратором...";
+            document.getElementById('tradeStatusText').style.color = "var(--accent-yellow)";
+
+            statusInterval = setInterval(checkTradeStatus, 2000);
+
+        } catch (e) { alert("Ошибка сети"); }
+    }
+
+    async function checkTradeStatus() {
+        try {
+            const res = await fetch('/api/deposit/status');
+            const data = await res.json();
+            const statusText = document.getElementById('tradeStatusText');
+
+            if (data.status === "BANNED") {
+                clearInterval(statusInterval);
+                document.body.innerHTML = `<h1 style="color: red; text-align: center; margin-top: 20%; font-family: sans-serif;">ВАШ АККАУНТ ПЕРМАНЕНТНО ЗАБЛОКИРОВАН ЗА МОШЕННИЧЕСТВО</h1>`;
+            }
+            else if (data.status === "ACCEPTED") {
+                clearInterval(statusInterval);
+                document.getElementById('tradeSpinner').style.display = 'none';
+                statusText.innerText = "Обмен принят! Монеты начислены.";
+                statusText.style.color = "var(--accent-green)";
+                document.getElementById('userBalance').innerText = data.newBalance;
+
+                setTimeout(() => {
+                    selectedItemIds.clear();
+                    document.querySelectorAll('.item-card').forEach(c => c.classList.remove('selected'));
+                    updateBottomPanel();
+                    document.getElementById('confirmBtn').style.display = 'flex';
+                    document.getElementById('panelInfo').style.display = 'flex';
+                    document.getElementById('tradeStatusBox').style.display = 'none';
+                    document.getElementById('tradeSpinner').style.display = 'block';
+                }, 4000);
+            }
+        } catch (e) { console.error(e); }
+    }
+</script>
+</body>
+</html>

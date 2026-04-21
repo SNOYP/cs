@@ -31,4 +31,18 @@ public class MainController {
         return "crash";
     }
 
+    @GetMapping("/game/coinflip")
+    public String coinflipPage(@AuthenticationPrincipal UserDetails userDetails, Model model) {
+        User user = userRepository.findByUsername(userDetails.getUsername()).orElseThrow();
+        model.addAttribute("user", user);
+        return "coinflip";
+    }
+
+    // --- НОВЫЙ РОУТ ДЛЯ СТРАНИЦЫ ДЕПОЗИТА ---
+    @GetMapping("/deposit")
+    public String depositPage(@AuthenticationPrincipal UserDetails userDetails, Model model) {
+        User user = userRepository.findByUsername(userDetails.getUsername()).orElseThrow();
+        model.addAttribute("user", user);
+        return "deposit";
+    }
 }
