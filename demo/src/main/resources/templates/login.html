@@ -1,71 +1,98 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Casino Login</title>
+    <title>Авторизация | SkinCasino</title>
+    <meta charset="UTF-8">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
-            --bg-body: #13151b;
-            --bg-panel: #1d202b;
-            --bg-input: #151820;
+            --bg-body: #0b0c11;
+            --bg-card: #13151c;
+            --bg-input: #090a0e;
             --accent-blue: #3d7fff;
             --accent-cyan: #00e7ff;
             --text-main: #ffffff;
             --text-sec: #767c91;
-            --border-radius: 12px;
+            --card-border: #1e222d;
         }
 
-        body { background: var(--bg-body); color: var(--text-main); display: flex; justify-content: center; align-items: center; height: 100vh; font-family: 'Segoe UI', sans-serif; margin: 0; }
+        body {
+            background: var(--bg-body);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+        }
 
-        .container { display: flex; gap: 40px; flex-wrap: wrap; justify-content: center; align-items: flex-start; }
+        .container {
+            display: flex;
+            gap: 40px;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: flex-start;
+        }
 
         .box {
-            background: var(--bg-panel);
+            background: var(--bg-card);
             padding: 40px;
-            border-radius: var(--border-radius);
-            border: 1px solid #2a2e3d;
-            width: 320px;
+            border-radius: 12px;
+            border: 1px solid var(--card-border);
+            width: 340px;
             text-align: center;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
         }
 
-        h2 { color: var(--accent-cyan); margin-bottom: 25px; text-transform: uppercase; font-size: 20px; letter-spacing: 1px; }
+        h2 {
+            color: var(--accent-cyan);
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            font-size: 20px;
+            letter-spacing: 1px;
+            text-shadow: 0 0 10px rgba(0, 231, 255, 0.3);
+        }
 
-        /* Инпуты */
-        input {
+        .input-field {
             width: 100%;
             box-sizing: border-box;
-            padding: 15px;
-            margin: 10px 0;
+            padding: 14px 15px;
+            margin-bottom: 15px;
             background: var(--bg-input);
-            border: 1px solid #2f3447;
+            border: 1px solid var(--card-border);
             color: white;
             border-radius: 8px;
             outline: none;
             font-size: 14px;
             transition: 0.2s;
         }
-        input:focus { border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(61, 127, 255, 0.1); }
+        .input-field:focus {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 2px rgba(61, 127, 255, 0.2);
+        }
 
-        /* Кнопка входа */
-        button {
+        .btn-submit {
             width: 100%;
             padding: 15px;
-            background: linear-gradient(135deg, var(--accent-blue) 0%, #2b5cbf 100%);
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan));
             border: none;
             font-weight: 800;
             cursor: pointer;
             border-radius: 8px;
-            margin-top: 15px;
-            font-size: 16px;
-            color: white;
+            margin-top: 10px;
+            font-size: 15px;
+            color: #000;
             text-transform: uppercase;
             transition: 0.2s;
             box-shadow: 0 4px 15px rgba(61, 127, 255, 0.3);
         }
-        button:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(61, 127, 255, 0.5); }
+        .btn-submit:hover {
+            opacity: 0.9;
+            box-shadow: 0 6px 20px rgba(0, 231, 255, 0.5);
+            transform: translateY(-1px);
+        }
 
-        /* Кнопка Steam */
         .steam-btn {
             background: #171a21;
             color: #c5d4de;
@@ -90,21 +117,25 @@
         }
         .steam-btn i { margin-right: 10px; font-size: 18px; }
 
-        .sub-text { margin-top: 20px; font-size: 14px; color: var(--text-sec); }
-        .sub-text a { color: var(--accent-blue); text-decoration: none; font-weight: bold; }
-        .sub-text a:hover { text-decoration: underline; }
+        .sub-text { margin-top: 25px; font-size: 13px; color: var(--text-sec); }
+        .sub-text a { color: var(--accent-cyan); text-decoration: none; font-weight: bold; transition: 0.2s;}
+        .sub-text a:hover { text-shadow: 0 0 8px rgba(0, 231, 255, 0.4); }
+
+        .error { color: #ff4b2b; font-size: 13px; margin-bottom: 15px; background: rgba(255, 75, 43, 0.1); padding: 10px; border-radius: 6px; border: 1px solid rgba(255, 75, 43, 0.2); }
     </style>
 </head>
 <body>
 
 <div class="container">
-
     <div class="box">
-        <h2>Admin Login</h2>
+        <h2>Вход по паролю</h2>
+        <div th:if="${param.error}" class="error">Неверный логин или пароль</div>
+        <div th:if="${param.registered}" style="color: #00e7ff; margin-bottom: 15px; font-size: 13px;">Регистрация успешна!</div>
+
         <form action="/login" method="post">
-            <input type="text" name="username" placeholder="Логин" required>
-            <input type="password" name="password" placeholder="Пароль" required>
-            <button type="submit">Войти</button>
+            <input type="text" name="username" class="input-field" placeholder="Логин" required>
+            <input type="password" name="password" class="input-field" placeholder="Пароль" required>
+            <button type="submit" class="btn-submit">Войти</button>
         </form>
         <div class="sub-text">
             Нет аккаунта? <a href="/register">Регистрация</a>
@@ -113,13 +144,12 @@
 
     <div class="box">
         <h2>Player Login</h2>
-        <p style="color: var(--text-sec); margin-bottom: 25px; font-size: 14px;">Быстрый вход через Steam Community</p>
+        <p style="color: var(--text-sec); margin-bottom: 25px; font-size: 14px;">Быстрый вход через Steam</p>
 
         <a href="/auth/steam/login" class="steam-btn">
             <i class="fab fa-steam"></i> Sign in with Steam
         </a>
     </div>
-
 </div>
 
 </body>

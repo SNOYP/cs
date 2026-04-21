@@ -31,8 +31,4 @@ public class MainController {
         return "crash";
     }
 
-    @GetMapping("/admin")
-    public String adminPanel() {
-        return "admin";
-    }
 }

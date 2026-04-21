@@ -30,8 +30,11 @@ public class AuthController {
     }
 
     @GetMapping("/login")
-    public RedirectView login() {
-        return new RedirectView(steamService.getLoginUrl());
+    public RedirectView login(HttpServletRequest request) {
+        // Динамически получаем адрес сайта, с которого зашел игрок (включая порт)
+        String baseUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort();
+
+        return new RedirectView(steamService.getLoginUrl(baseUrl));
     }
 
     @GetMapping("/callback")

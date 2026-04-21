@@ -7,7 +7,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -24,16 +23,13 @@ public class CrashController {
 
     @GetMapping("/status")
     public Map<String, Object> getStatus(@AuthenticationPrincipal UserDetails userDetails) {
-
         Map<String, Object> status = crashService.getStatus(userDetails.getUsername());
-
         if (userDetails != null) {
             User user = userRepository.findByUsername(userDetails.getUsername()).orElse(null);
             if (user != null) {
                 status.put("balance", user.getBalance());
             }
         }
-
         return status;
     }
 
@@ -43,6 +39,18 @@ public class CrashController {
                                    @AuthenticationPrincipal UserDetails userDetails) {
         try {
             crashService.placeBet(userDetails.getUsername(), amount, slot);
+            return Map.of("success", true);
+        } catch (Exception e) {
+            return Map.of("error", e.getMessage());
+        }
+    }
+
+    // --- НОВЫЙ ЭНДПОИНТ: ОТМЕНА ---
+    @PostMapping("/cancel")
+    public Map<String, Object> cancel(@RequestParam int slot,
+                                      @AuthenticationPrincipal UserDetails userDetails) {
+        try {
+            crashService.cancelBet(userDetails.getUsername(), slot);
             return Map.of("success", true);
         } catch (Exception e) {
             return Map.of("error", e.getMessage());

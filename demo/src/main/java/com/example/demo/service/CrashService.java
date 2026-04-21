@@ -1,8 +1,10 @@
 package com.example.demo.service;
 
+import com.example.demo.model.BetRecord;
 import com.example.demo.model.CrashGame;
 import com.example.demo.model.GameState;
 import com.example.demo.model.User;
+import com.example.demo.repository.BetRecordRepository;
 import com.example.demo.repository.CrashGameRepository;
 import com.example.demo.repository.UserRepository;
 import jakarta.annotation.PostConstruct;
@@ -10,8 +12,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
+import java.time.LocalDateTime;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @Service
@@ -23,18 +25,21 @@ public class CrashService {
         public int slot;
         public Double cashoutMultiplier;
         public Long profit;
+        public String avatarUrl;
 
-        public Bet(String username, Long amount, int slot) {
+        public Bet(String username, Long amount, int slot, String avatarUrl) {
             this.username = username;
             this.amount = amount;
             this.slot = slot;
             this.cashoutMultiplier = null;
             this.profit = null;
+            this.avatarUrl = avatarUrl;
         }
     }
 
     private final CrashGameRepository crashGameRepository;
     private final UserRepository userRepository;
+    private final BetRecordRepository betRecordRepository;
     private final SecureRandom random = new SecureRandom();
 
     private GameState currentState = GameState.WAITING;
@@ -43,9 +48,10 @@ public class CrashService {
     private List<CrashGame> cachedHistory;
     private final List<Bet> currentRoundBets = new CopyOnWriteArrayList<>();
 
-    public CrashService(CrashGameRepository crashGameRepository, UserRepository userRepository) {
+    public CrashService(CrashGameRepository crashGameRepository, UserRepository userRepository, BetRecordRepository betRecordRepository) {
         this.crashGameRepository = crashGameRepository;
         this.userRepository = userRepository;
+        this.betRecordRepository = betRecordRepository;
     }
 
     @PostConstruct
@@ -69,28 +75,16 @@ public class CrashService {
     }
 
     private void startGame() {
-        // --- АЛГОРИТМ ЗАРАБОТКА КАЗИНО (Как на фото 2) ---
         double chance = random.nextDouble() * 100;
         double result;
-
-        if (chance < 10.0) {
-            // 10% шанс мгновенного краша 1.00x (сразу забираем все ставки)
-            result = 1.00;
-        } else if (chance < 80.0) {
-            // 70% шанс низкого икса: от 1.01 до 1.80
-            result = 1.01 + (random.nextDouble() * 0.79);
-        } else if (chance < 97.0) {
-            // 17% шанс среднего икса: от 1.80 до 3.50
-            result = 1.80 + (random.nextDouble() * 1.70);
-        } else {
-            // Только 3% шанс на икс выше 3.50 (редкие джекпоты)
-            result = 3.50 + (random.nextDouble() * 15.0);
-        }
+        if (chance < 10.0) result = 1.00;
+        else if (chance < 80.0) result = 1.01 + (random.nextDouble() * 0.79);
+        else if (chance < 97.0) result = 1.80 + (random.nextDouble() * 1.70);
+        else result = 3.50 + (random.nextDouble() * 15.0);
 
         this.currentCrashPoint = Math.floor(result * 100) / 100.0;
         this.currentState = GameState.RUNNING;
         this.stateStartTime = System.currentTimeMillis();
-        System.out.println("🚀 START! Crash at: " + currentCrashPoint);
     }
 
     private void crash() {
@@ -98,7 +92,18 @@ public class CrashService {
         this.stateStartTime = System.currentTimeMillis();
         crashGameRepository.save(new CrashGame(currentCrashPoint));
         this.cachedHistory = crashGameRepository.findTop20ByOrderByIdDesc();
-        System.out.println("💥 CRASHED at " + currentCrashPoint);
+
+        LocalDateTime now = LocalDateTime.now();
+        for (Bet bet : currentRoundBets) {
+            BetRecord record = new BetRecord();
+            record.setUsername(bet.username);
+            record.setAmount(bet.amount);
+            record.setCashoutMultiplier(bet.cashoutMultiplier);
+            record.setProfit(bet.profit);
+            record.setCrashPoint(currentCrashPoint);
+            record.setPlayedAt(now);
+            betRecordRepository.save(record);
+        }
     }
 
     private void resetToWaiting() {
@@ -123,7 +128,23 @@ public class CrashService {
 
         user.setBalance(user.getBalance() - amount);
         userRepository.save(user);
-        currentRoundBets.add(new Bet(username, amount, slot));
+        currentRoundBets.add(new Bet(username, amount, slot, user.getAvatarUrl()));
+    }
+
+    // --- НОВЫЙ МЕТОД: ОТМЕНА СТАВКИ ---
+    public void cancelBet(String username, int slot) throws Exception {
+        if (currentState != GameState.WAITING) throw new Exception("Игра уже началась, отмена невозможна!");
+
+        Bet userBet = currentRoundBets.stream()
+                .filter(b -> b.username.equals(username) && b.slot == slot)
+                .findFirst()
+                .orElseThrow(() -> new Exception("Ставка не найдена!"));
+
+        currentRoundBets.remove(userBet);
+
+        User user = userRepository.findByUsername(username).orElseThrow();
+        user.setBalance(user.getBalance() + userBet.amount);
+        userRepository.save(user);
     }
 
     public void cashOut(String username, int slot) throws Exception {

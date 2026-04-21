@@ -19,12 +19,11 @@
             --border-radius: 12px;
         }
 
-        /* 1. ФИКСИРУЕМ СТРАНИЦУ ПО РАЗМЕРУ ОКНА */
         html, body {
             height: 100%;
             margin: 0;
             padding: 0;
-            overflow: hidden; /* Убираем внешнюю прокрутку */
+            overflow: hidden;
         }
 
         body {
@@ -35,7 +34,7 @@
             flex-direction: column;
         }
 
-        /* --- ШАПКА (Header) --- */
+        /* --- ШАПКА --- */
         header {
             background: var(--bg-panel);
             padding: 0 25px;
@@ -50,7 +49,6 @@
         }
         .logo { font-size: 22px; font-weight: 800; color: var(--accent-cyan); text-transform: uppercase; letter-spacing: 1px; text-decoration: none; }
 
-        /* Панель пользователя в шапке */
         .user-panel {
             display: flex;
             align-items: center;
@@ -61,7 +59,6 @@
             border: 1px solid #2a2e3d;
         }
 
-        /* Ссылка на профиль (Обертка) */
         .profile-link {
             text-decoration: none;
             display: flex;
@@ -72,7 +69,6 @@
         }
         .profile-link:hover { opacity: 0.8; }
 
-        /* Аватарка в шапке */
         .header-avatar {
             width: 32px;
             height: 32px;
@@ -93,7 +89,6 @@
             overflow: hidden;
         }
 
-        /* 2. ЛЕВАЯ ЧАСТЬ (Игра) */
         .game-section {
             flex: 3;
             display: flex;
@@ -104,7 +99,6 @@
             min-width: 0;
         }
 
-        /* История */
         .history-bar {
             height: 50px;
             background: var(--bg-panel);
@@ -127,13 +121,7 @@
             text-align: center;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
-        .badge-bad { color: #ff8888; background: rgba(255, 75, 43, 0.15); border: 1px solid rgba(255, 75, 43, 0.3); }
-        .badge-norm { color: #88ccff; background: rgba(61, 127, 255, 0.15); border: 1px solid rgba(61, 127, 255, 0.3); }
-        .badge-good { color: #88ff88; background: rgba(84, 185, 71, 0.15); border: 1px solid rgba(84, 185, 71, 0.3); }
-        .badge-epic { color: #e088ff; background: rgba(169, 62, 194, 0.15); border: 1px solid rgba(169, 62, 194, 0.3); }
-        .badge-gold { color: #ffcc00; background: rgba(194, 152, 62, 0.15); border: 1px solid rgba(194, 152, 62, 0.3); }
 
-        /* График */
         .chart-container {
             flex: 1;
             position: relative;
@@ -146,7 +134,6 @@
         .multiplier { font-size: 80px; font-weight: 900; color: white; text-shadow: 0 0 40px rgba(61, 127, 255, 0.4); font-family: 'Segoe UI', sans-serif; letter-spacing: -2px; }
         .status-text { font-size: 16px; color: var(--text-sec); margin-top: 5px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; }
 
-        /* Панель управления */
         .controls-wrapper {
             background: var(--bg-panel);
             display: flex;
@@ -221,6 +208,18 @@
         }
         .btn-bet:hover { box-shadow: 0 0 20px rgba(61, 127, 255, 0.4); }
 
+        /* --- КНОПКА ОТМЕНЫ --- */
+        .btn-cancel {
+            background: linear-gradient(135deg, var(--accent-red) 0%, #c62828 100%);
+            color: white;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 15px rgba(255, 75, 43, 0.3);
+        }
+        .btn-cancel:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 75, 43, 0.5);
+        }
+
         .btn-cashout {
             background: linear-gradient(135deg, var(--accent-green) 0%, #439638 100%);
             color: white;
@@ -229,7 +228,6 @@
 
         .btn-waiting { background: #353b4d; color: #666c80; cursor: not-allowed; box-shadow: none; }
 
-        /* 3. ПРАВАЯ ЧАСТЬ (Сайдбар) */
         .sidebar {
             flex: 1;
             min-width: 280px;
@@ -266,7 +264,24 @@
         .bet-item.loser { background: rgba(255, 75, 43, 0.08); border-left: 3px solid var(--accent-red); }
 
         .user-info { display: flex; align-items: center; gap: 10px; color: white; font-weight: 600; }
-        .avatar { width: 30px; height: 30px; background: #2f3447; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #767c91; }
+
+        .avatar {
+            width: 30px;
+            height: 30px;
+            background: #2f3447;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: #767c91;
+            overflow: hidden;
+        }
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
 
         .stats-container { display: flex; align-items: center; gap: 10px; text-align: right; }
         .bet-amount { color: var(--text-sec); font-weight: 500; }
@@ -274,25 +289,14 @@
         .loss { color: var(--accent-red); font-weight: bold; }
         .badge-mult { background: #2a2e3d; color: white; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 700; }
 
-        /* Скроллбары */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #13151b; }
         ::-webkit-scrollbar-thumb { background: #2f3447; border-radius: 3px; }
 
-        /* 4. АДАПТАЦИЯ */
         @media (max-width: 900px) {
-            .main-layout {
-                flex-direction: column;
-                overflow-y: auto;
-                height: auto;
-            }
+            .main-layout { flex-direction: column; overflow-y: auto; height: auto; }
             body { overflow-y: auto; height: auto; }
-            .game-section {
-                border-right: none;
-                border-bottom: 1px solid #2a2e3d;
-                flex: none;
-                height: auto;
-            }
+            .game-section { border-right: none; border-bottom: 1px solid #2a2e3d; flex: none; height: auto; }
             .chart-container { height: 300px; min-height: 300px; }
             .sidebar { max-width: 100%; height: 400px; }
         }
@@ -306,13 +310,11 @@
     <div class="user-panel">
         <a href="/profile" class="profile-link">
             <img th:src="${user.avatarUrl != null ? user.avatarUrl : 'https://avatars.steamstatic.com/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_full.jpg'}" class="header-avatar" alt="Ava">
-
             <div class="user-text">
                 <div th:text="${user.username}" id="username" class="username-text">User</div>
                 <div class="balance"><i class="fas fa-coins"></i> <span id="userBalance" th:text="${user.balance}">0</span></div>
             </div>
         </a>
-
         <a href="/logout" style="color: #ff5252; margin-left: 10px; font-size: 18px;" title="Выйти"><i class="fas fa-sign-out-alt"></i></a>
     </div>
 </header>
@@ -331,47 +333,39 @@
 
         <div class="controls-wrapper">
             <div class="bet-column" id="slot1">
-                <div>
-                    <div class="section-title">Сумма ставки</div>
-                    <div class="input-row">
-                        <button class="ctrl-btn" onclick="modBet(1, 'min')">MIN</button>
-                        <input type="number" id="betInput1" class="custom-input" value="100">
-                        <button class="ctrl-btn" onclick="modBet(1, '/2')">1/2</button>
-                        <button class="ctrl-btn" onclick="modBet(1, 'x2')">x2</button>
-                        <button class="ctrl-btn" onclick="modBet(1, 'max')">MAX</button>
-                    </div>
+                <div class="section-title">Сумма ставки</div>
+                <div class="input-row">
+                    <button class="ctrl-btn" onclick="modBet(1, 'min')">MIN</button>
+                    <input type="number" id="betInput1" class="custom-input" value="100">
+                    <button class="ctrl-btn" onclick="modBet(1, '/2')">1/2</button>
+                    <button class="ctrl-btn" onclick="modBet(1, 'x2')">x2</button>
+                    <button class="ctrl-btn" onclick="modBet(1, 'max')">MAX</button>
                 </div>
-                <div>
-                    <div class="section-title">Авто-вывод (Auto Cashout)</div>
-                    <div class="input-row">
-                        <input type="number" id="autoCashout1" class="custom-input" placeholder="x" step="0.1">
-                        <button class="ctrl-btn" onclick="setAuto(1, 1.1)">1.1x</button>
-                        <button class="ctrl-btn" onclick="setAuto(1, 1.5)">1.5x</button>
-                        <button class="ctrl-btn" onclick="setAuto(1, 2.0)">2.0x</button>
-                    </div>
+                <div class="section-title">Auto Cashout</div>
+                <div class="input-row">
+                    <input type="number" id="autoCashout1" class="custom-input" placeholder="x" step="0.1">
+                    <button class="ctrl-btn" onclick="setAuto(1, 1.1)">1.1x</button>
+                    <button class="ctrl-btn" onclick="setAuto(1, 1.5)">1.5x</button>
+                    <button class="ctrl-btn" onclick="setAuto(1, 2.0)">2.0x</button>
                 </div>
                 <button class="action-btn btn-bet" id="btn1" onclick="doAction(1)">Сделать ставку</button>
             </div>
 
             <div class="bet-column" id="slot2">
-                <div>
-                    <div class="section-title">Сумма ставки</div>
-                    <div class="input-row">
-                        <button class="ctrl-btn" onclick="modBet(2, 'min')">MIN</button>
-                        <input type="number" id="betInput2" class="custom-input" value="100">
-                        <button class="ctrl-btn" onclick="modBet(2, '/2')">1/2</button>
-                        <button class="ctrl-btn" onclick="modBet(2, 'x2')">x2</button>
-                        <button class="ctrl-btn" onclick="modBet(2, 'max')">MAX</button>
-                    </div>
+                <div class="section-title">Сумма ставки</div>
+                <div class="input-row">
+                    <button class="ctrl-btn" onclick="modBet(2, 'min')">MIN</button>
+                    <input type="number" id="betInput2" class="custom-input" value="100">
+                    <button class="ctrl-btn" onclick="modBet(2, '/2')">1/2</button>
+                    <button class="ctrl-btn" onclick="modBet(2, 'x2')">x2</button>
+                    <button class="ctrl-btn" onclick="modBet(2, 'max')">MAX</button>
                 </div>
-                <div>
-                    <div class="section-title">Авто-вывод (Auto Cashout)</div>
-                    <div class="input-row">
-                        <input type="number" id="autoCashout2" class="custom-input" placeholder="x" step="0.1">
-                        <button class="ctrl-btn" onclick="setAuto(2, 1.1)">1.1x</button>
-                        <button class="ctrl-btn" onclick="setAuto(2, 1.5)">1.5x</button>
-                        <button class="ctrl-btn" onclick="setAuto(2, 2.0)">2.0x</button>
-                    </div>
+                <div class="section-title">Auto Cashout</div>
+                <div class="input-row">
+                    <input type="number" id="autoCashout2" class="custom-input" placeholder="x" step="0.1">
+                    <button class="ctrl-btn" onclick="setAuto(2, 1.1)">1.1x</button>
+                    <button class="ctrl-btn" onclick="setAuto(2, 1.5)">1.5x</button>
+                    <button class="ctrl-btn" onclick="setAuto(2, 2.0)">2.0x</button>
                 </div>
                 <button class="action-btn btn-bet" id="btn2" onclick="doAction(2)">Сделать ставку</button>
             </div>
@@ -383,8 +377,7 @@
             <span><i class="fas fa-users"></i> Игроков: <span id="playersCount" style="color: white;">0</span></span>
             <span>Банк: <span id="totalBetsVal" style="color: var(--accent-green);">0</span></span>
         </div>
-        <div class="bets-list" id="betsList">
-        </div>
+        <div class="bets-list" id="betsList"></div>
     </div>
 </div>
 
@@ -401,6 +394,7 @@
     let gameState = "UNKNOWN";
     let currentBalance = 0;
     let slotState = { 1: 0, 2: 0 };
+    let latestBets = []; // Глобальная переменная для хранения актуальных ставок
     let autoCashoutTargets = { 1: null, 2: null };
     let flightStartTime = 0;
     let waitingEndTime = 0;
@@ -408,8 +402,7 @@
     let lineColor = '#3d7fff';
 
     function resize() { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; }
-    window.onresize = resize;
-    resize();
+    window.onresize = resize; resize();
 
     setInterval(fetchStatus, 200);
     requestAnimationFrame(animateLoop);
@@ -418,32 +411,31 @@
         let input = document.getElementById('betInput' + slot);
         let val = parseInt(input.value) || 0;
         if (action === 'min') val = 10;
-        if (action === '/2') val = Math.floor(val / 2);
-        if (action === 'x2') val = val * 2;
-        if (action === 'max') val = currentBalance;
+        else if (action === '/2') val = Math.floor(val / 2);
+        else if (action === 'x2') val *= 2;
+        else if (action === 'max') val = currentBalance;
         if (val < 10) val = 10;
         input.value = val;
     }
 
-    function setAuto(slot, val) {
-        document.getElementById('autoCashout' + slot).value = val;
-    }
+    function setAuto(slot, val) { document.getElementById('autoCashout' + slot).value = val; }
 
     async function fetchStatus() {
         try {
             const res = await fetch('/api/crash/status');
             const data = await res.json();
 
-            // --- ИСПРАВЛЕНИЕ UNDEFINED ---
             if (data.balance !== undefined && data.balance !== null) {
                 currentBalance = data.balance;
                 balanceSpan.innerText = data.balance;
             }
 
+            latestBets = data.bets; // Сохраняем ставки для кнопок
             updateHistory(data.history);
             updateBetsTable(data.bets, data.status, data.multiplier);
 
             let myBets = data.bets.filter(b => b.username === myUsername);
+
             if (data.status === "WAITING" && gameState !== "WAITING") {
                 slotState[1] = 0; slotState[2] = 0;
             }
@@ -469,98 +461,29 @@
                 }
                 let remaining = 10 - data.elapsed;
                 waitingEndTime = Date.now() + (remaining * 1000);
-
             } else if (data.status === "RUNNING") {
-                if (gameState !== "RUNNING") {
-                    gameState = "RUNNING";
-                    flightStartTime = Date.now() - (data.elapsed * 1000);
-                }
+                if (gameState !== "RUNNING") gameState = "RUNNING";
+                flightStartTime = Date.now() - (data.elapsed * 1000);
                 lineColor = '#00e7ff';
-
             } else if (data.status === "CRASHED") {
-                if (gameState !== "CRASHED") {
-                    gameState = "CRASHED";
-                    finalCrashMultiplier = data.multiplier;
-                    lineColor = '#ff4b2b';
-                }
+                if (gameState !== "CRASHED") gameState = "CRASHED";
+                finalCrashMultiplier = data.multiplier;
+                lineColor = '#ff4b2b';
             }
-
             updateButtons(data.status === "RUNNING" ? calculateMultiplier((Date.now() - flightStartTime)/1000) : finalCrashMultiplier);
-
         } catch (e) { console.error(e); }
     }
 
-    function animateLoop() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        if (gameState === "WAITING") {
-            let timeLeft = (waitingEndTime - Date.now()) / 1000;
-            if (timeLeft < 0) timeLeft = 0;
-            multiDisplay.innerText = "START IN " + timeLeft.toFixed(1) + "s";
-            multiDisplay.style.color = "white";
-            statusDisplay.innerText = "PLACING BETS...";
-        }
-        else if (gameState === "RUNNING") {
-            let elapsedSeconds = (Date.now() - flightStartTime) / 1000;
-            let currentMult = calculateMultiplier(elapsedSeconds);
-
-            multiDisplay.innerText = currentMult.toFixed(2) + "x";
-            multiDisplay.style.color = "white";
-            statusDisplay.innerText = "FLYING...";
-
-            drawGraph(elapsedSeconds, currentMult);
-
-            [1, 2].forEach(slot => {
-                if (slotState[slot] === 2 && autoCashoutTargets[slot] && currentMult >= autoCashoutTargets[slot]) {
-                    doAction(slot);
-                    autoCashoutTargets[slot] = null;
-                }
-            });
-
-            updateButtons(currentMult);
-        }
-        else if (gameState === "CRASHED") {
-            let crashTime = Math.log(finalCrashMultiplier) / Math.log(1.07);
-            multiDisplay.innerText = finalCrashMultiplier.toFixed(2) + "x";
-            multiDisplay.style.color = "#ff4b2b";
-            statusDisplay.innerText = "CRASHED";
-            drawGraph(crashTime, finalCrashMultiplier);
-        }
-        requestAnimationFrame(animateLoop);
-    }
-
-    function calculateMultiplier(seconds) {
-        return Math.pow(1.07, seconds);
-    }
-
-    function drawGraph(time, mult) {
-        ctx.beginPath();
-        ctx.lineWidth = 6;
-        ctx.strokeStyle = lineColor;
-        ctx.shadowBlur = 15;
-        ctx.shadowColor = lineColor;
-        ctx.lineCap = 'round';
-        let w = canvas.width;
-        let h = canvas.height;
-        let timeScale = Math.max(10, time);
-        ctx.moveTo(0, h);
-        for(let t = 0; t <= time; t += 0.1) {
-            let x = (t / timeScale) * w;
-            let m = Math.pow(1.07, t);
-            let y = h - ((m - 1) / (mult - 1 + 0.5)) * (h * 0.8);
-            ctx.lineTo(x, y);
-        }
-        let finalX = (time / timeScale) * w;
-        let finalY = h - ((mult - 1) / (mult - 1 + 0.5)) * (h * 0.8);
-        ctx.lineTo(finalX, finalY);
-        ctx.stroke();
-        ctx.shadowBlur = 0;
-    }
+    function calculateMultiplier(seconds) { return Math.pow(1.07, seconds); }
 
     function updateButtons(currentMult) {
         [1, 2].forEach(slot => {
             let btn = document.getElementById('btn' + slot);
             let state = slotState[slot];
+
+            // Ищем актуальную сумму ставки пользователя в этом слоте
+            let myBet = latestBets.find(b => b.username === myUsername && b.slot === slot);
+            let amountText = myBet ? myBet.amount : document.getElementById('betInput' + slot).value;
 
             if (gameState === "WAITING") {
                 if (state === 0) {
@@ -568,14 +491,14 @@
                     btn.innerText = "СДЕЛАТЬ СТАВКУ";
                     btn.disabled = false;
                 } else {
-                    btn.className = "action-btn btn-waiting";
-                    btn.innerText = "СТАВКА ПРИНЯТА...";
-                    btn.disabled = true;
+                    // КНОПКА ОТМЕНЫ
+                    btn.className = "action-btn btn-cancel";
+                    btn.innerText = "ОТМЕНА (" + amountText + ")";
+                    btn.disabled = false;
                 }
             } else if (gameState === "RUNNING") {
                 if (state === 2) {
-                    let betVal = document.getElementById('betInput' + slot).value;
-                    let win = (betVal * currentMult).toFixed(0);
+                    let win = (amountText * currentMult).toFixed(0);
                     btn.className = "action-btn btn-cashout";
                     btn.innerText = "ЗАБРАТЬ: " + win;
                     btn.disabled = false;
@@ -598,28 +521,73 @@
 
     function doAction(slot) {
         if (gameState === "WAITING") {
-            let amount = document.getElementById('betInput' + slot).value;
-            let autoVal = parseFloat(document.getElementById('autoCashout' + slot).value);
-
-            if (autoVal && autoVal > 1.0) {
-                autoCashoutTargets[slot] = autoVal;
-            } else {
-                autoCashoutTargets[slot] = null;
-            }
-
-            fetch(`/api/crash/bet?amount=${amount}&slot=${slot}`, { method: 'POST' })
-                .then(r => r.json())
-                .then(d => {
-                    if (d.success) slotState[slot] = 1;
+            if (slotState[slot] === 1) {
+                // ОТМЕНА СТАВКИ
+                fetch(`/api/crash/cancel?slot=${slot}`, { method: 'POST' })
+                    .then(r => r.json()).then(d => {
+                    if (d.success) slotState[slot] = 0;
                     else alert(d.error);
                 });
+                return;
+            }
+            // СОЗДАНИЕ СТАВКИ
+            let amount = document.getElementById('betInput' + slot).value;
+            let autoVal = parseFloat(document.getElementById('autoCashout' + slot).value);
+            if (autoVal && autoVal > 1.0) autoCashoutTargets[slot] = autoVal;
+            else autoCashoutTargets[slot] = null;
+
+            fetch(`/api/crash/bet?amount=${amount}&slot=${slot}`, { method: 'POST' })
+                .then(r => r.json()).then(d => {
+                if (d.success) slotState[slot] = 1;
+                else alert(d.error);
+            });
         } else if (gameState === "RUNNING") {
             fetch(`/api/crash/cashout?slot=${slot}`, { method: 'POST' })
-                .then(r => r.json())
-                .then(d => {
-                    if (d.success) slotState[slot] = 3;
-                });
+                .then(r => r.json()).then(d => { if (d.success) slotState[slot] = 3; });
         }
+    }
+
+    function animateLoop() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        if (gameState === "WAITING") {
+            let timeLeft = Math.max(0, (waitingEndTime - Date.now()) / 1000);
+            multiDisplay.innerText = "START IN " + timeLeft.toFixed(1) + "s";
+            statusDisplay.innerText = "PLACING BETS...";
+        } else if (gameState === "RUNNING") {
+            let elapsedSeconds = (Date.now() - flightStartTime) / 1000;
+            let currentMult = calculateMultiplier(elapsedSeconds);
+            multiDisplay.innerText = currentMult.toFixed(2) + "x";
+            statusDisplay.innerText = "FLYING...";
+            drawGraph(elapsedSeconds, currentMult);
+            [1, 2].forEach(slot => {
+                if (slotState[slot] === 2 && autoCashoutTargets[slot] && currentMult >= autoCashoutTargets[slot]) {
+                    doAction(slot);
+                    autoCashoutTargets[slot] = null;
+                }
+            });
+            updateButtons(currentMult);
+        } else if (gameState === "CRASHED") {
+            let crashTime = Math.log(finalCrashMultiplier) / Math.log(1.07);
+            multiDisplay.innerText = finalCrashMultiplier.toFixed(2) + "x";
+            statusDisplay.innerText = "CRASHED";
+            drawGraph(crashTime, finalCrashMultiplier);
+        }
+        requestAnimationFrame(animateLoop);
+    }
+
+    function drawGraph(time, mult) {
+        ctx.beginPath(); ctx.lineWidth = 6; ctx.strokeStyle = lineColor;
+        ctx.shadowBlur = 15; ctx.shadowColor = lineColor; ctx.lineCap = 'round';
+        let w = canvas.width, h = canvas.height;
+        let timeScale = Math.max(10, time);
+        ctx.moveTo(0, h);
+        for(let t = 0; t <= time; t += 0.1) {
+            let x = (t / timeScale) * w;
+            let m = Math.pow(1.07, t);
+            let y = h - ((m - 1) / (mult - 1 + 0.5)) * (h * 0.8);
+            ctx.lineTo(x, y);
+        }
+        ctx.stroke(); ctx.shadowBlur = 0;
     }
 
     function updateHistory(history) {
@@ -628,80 +596,27 @@
         historyBar.innerHTML = "";
         history.forEach(g => {
             let d = document.createElement('div');
-            d.className = 'badge';
-            d.innerText = g.crashPoint.toFixed(2) + 'x';
-            if (g.crashPoint < 1.1) d.classList.add('badge-bad');
-            else if (g.crashPoint < 2) d.classList.add('badge-norm');
-            else if (g.crashPoint < 4) d.classList.add('badge-good');
-            else if (g.crashPoint < 10) d.classList.add('badge-epic');
-            else d.classList.add('badge-gold');
+            d.className = 'badge'; d.innerText = g.crashPoint.toFixed(2) + 'x';
             historyBar.appendChild(d);
         });
     }
-
     let lastHistoryId = 0;
 
     function updateBetsTable(bets, serverGameStatus, currentCrashMultiplier) {
         if (!bets) return;
-
-        const uniquePlayers = new Set(bets.map(b => b.username)).size;
-        document.getElementById('playersCount').innerText = uniquePlayers;
+        document.getElementById('playersCount').innerText = new Set(bets.map(b => b.username)).size;
         document.getElementById('totalBetsVal').innerText = bets.reduce((a, b) => a + b.amount, 0);
-
-        bets.sort((a, b) => {
-            if (a.profit && !b.profit) return -1;
-            if (!a.profit && b.profit) return 1;
-            return b.amount - a.amount;
-        });
-
         let html = "";
         bets.forEach(b => {
-            let rowClass = "";
-            let statsHtml = "";
-
-            if (b.profit != null) {
-                rowClass = "winner";
-                // ВАЖНОЕ ИЗМЕНЕНИЕ: ЧИСТАЯ ПРИБЫЛЬ
-                let netProfit = b.profit - b.amount;
-                statsHtml = `
-                    <div class="stats-container">
-                        <span class="bet-amount">${b.amount}</span>
-                        <span class="badge-mult" style="color:#54b947;">x${b.cashoutMultiplier.toFixed(2)}</span>
-                        <span class="profit">+${netProfit}</span>
-                    </div>
-                `;
-            }
-            else if (serverGameStatus === "CRASHED") {
-                rowClass = "loser";
-                statsHtml = `
-                    <div class="stats-container">
-                        <span class="bet-amount">${b.amount}</span>
-                        <span class="badge-mult" style="color:#ff4b2b;">x${currentCrashMultiplier.toFixed(2)}</span>
-                        <span class="loss">-${b.amount}</span>
-                    </div>
-                `;
-            }
-            else {
-                statsHtml = `
-                     <div class="stats-container">
-                        <span class="bet-amount">--</span>
-                        <span style="color:white; font-weight:bold;">${b.amount}</span>
-                    </div>
-                `;
-            }
-
-            let avatar = `<div class="avatar">${b.username.charAt(0).toUpperCase()}</div>`;
-
-            html += `
-                <div class="bet-item ${rowClass}">
-                    <div class="user-info">${avatar} ${b.username}</div>
-                    <div>${statsHtml}</div>
-                </div>
-            `;
+            let rowClass = b.profit != null ? "winner" : (serverGameStatus === "CRASHED" ? "loser" : "");
+            let avatarImg = b.avatarUrl ? `<img src="${b.avatarUrl}">` : b.username.charAt(0).toUpperCase();
+            html += `<div class="bet-item ${rowClass}">
+                <div class="user-info"><div class="avatar">${avatarImg}</div> ${b.username}</div>
+                <div>${b.amount}</div>
+            </div>`;
         });
         betsList.innerHTML = html;
     }
 </script>
-
 </body>
 </html>

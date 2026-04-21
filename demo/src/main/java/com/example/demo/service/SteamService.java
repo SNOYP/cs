@@ -19,18 +19,16 @@ import java.util.stream.Collectors;
 @Service
 public class SteamService {
 
-    private static final String STEAM_OPENID_URL = "https://steamcommunity.com/openid/login";
-    private static final String CALLBACK_URL = "http://localhost:9090/auth/steam/callback";
-
     @Value("${steam.api.key}")
     private String steamApiKey;
 
-    public String getLoginUrl() {
-        return STEAM_OPENID_URL +
+    // Метод теперь динамически принимает адрес (например, http://26.x.x.x:9090)
+    public String getLoginUrl(String baseUrl) {
+        return "https://steamcommunity.com/openid/login" +
                 "?openid.ns=http://specs.openid.net/auth/2.0" +
                 "&openid.mode=checkid_setup" +
-                "&openid.return_to=" + CALLBACK_URL +
-                "&openid.realm=" + "http://localhost:9090" +
+                "&openid.return_to=" + baseUrl + "/auth/steam/callback" +
+                "&openid.realm=" + baseUrl +
                 "&openid.identity=http://specs.openid.net/auth/2.0/identifier_select" +
                 "&openid.claimed_id=http://specs.openid.net/auth/2.0/identifier_select";
     }
@@ -55,7 +53,7 @@ public class SteamService {
                 }
             }
 
-            URL url = new URL(STEAM_OPENID_URL);
+            URL url = new URL("https://steamcommunity.com/openid/login");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
             conn.setDoOutput(true);
@@ -78,7 +76,6 @@ public class SteamService {
         return null;
     }
 
-    // --- НОВЫЙ МЕТОД: Возвращает Map с данными (ник + аватар) ---
     public Map<String, String> getSteamUserData(String steamId) {
         Map<String, String> data = new HashMap<>();
         data.put("steamId", steamId);
@@ -105,7 +102,7 @@ public class SteamService {
                 if (players.isArray() && players.size() > 0) {
                     JsonNode player = players.get(0);
                     data.put("personaname", player.path("personaname").asText());
-                    data.put("avatarfull", player.path("avatarfull").asText()); // Берем аватарку
+                    data.put("avatarfull", player.path("avatarfull").asText());
                 }
             }
         } catch (Exception e) {

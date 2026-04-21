@@ -6,216 +6,432 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
-            --bg-body: #0f1116;
-            --bg-card: #181b24;
-            --bg-trade: #1e222d; /* Темный фон для блока трейда */
+            --bg-body: #0b0c11;
+            --bg-card: #13151c;
+            --bg-input: #090a0e;
             --accent-blue: #3d7fff;
-            --accent-mint: #5df0d0; /* Цвет кнопки как на фото */
+            --accent-cyan: #00e7ff;
             --text-main: #ffffff;
-            --text-sec: #8b92a6;
-            --border-radius: 16px;
+            --text-sec: #767c91;
+            --card-border: #1e222d;
+            --border-radius: 8px;
         }
 
         body {
             background: var(--bg-body);
             color: var(--text-main);
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+            padding: 40px 20px;
         }
 
-        .profile-container {
-            width: 100%;
-            max-width: 600px;
-            padding: 20px;
-        }
-
-        /* Карточка профиля */
-        .profile-header {
+        .page-title {
             text-align: center;
-            margin-bottom: 30px;
+            font-size: 24px;
+            font-weight: normal;
+            color: #fff;
+            letter-spacing: 1px;
+            margin-bottom: 40px;
+            text-transform: uppercase;
         }
 
-        .avatar-container {
-            width: 100px;
-            height: 100px;
-            margin: 0 auto 15px;
-            position: relative;
-        }
-        .avatar {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 4px solid var(--bg-card);
-            box-shadow: 0 0 0 2px var(--accent-blue);
+        /* СЕТКА: 3 КОЛОНКИ */
+        .profile-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(300px, 1fr));
+            gap: 20px;
+            max-width: 1100px;
+            margin: 0 auto;
+            align-items: start;
         }
 
-        .username { font-size: 24px; font-weight: 800; margin-bottom: 5px; }
-        .steam-id { color: var(--text-sec); font-size: 13px; font-family: monospace; background: #13151b; padding: 4px 10px; border-radius: 6px; display: inline-block; }
+        .col { display: flex; flex-direction: column; gap: 20px; }
 
-        /* --- БЛОК TRADE URL (КАК НА СКРИНШОТЕ) --- */
-        .trade-card {
+        @media (max-width: 950px) {
+            .profile-grid { grid-template-columns: 1fr; }
+        }
+
+        /* --- КАРТОЧКИ --- */
+        .card {
             background: var(--bg-card);
             border-radius: var(--border-radius);
-            padding: 25px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            border: 1px solid #232735;
+            padding: 25px 20px;
+            border: 1px solid var(--card-border);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
         }
 
-        .card-title {
+        .card-header {
             display: flex;
             align-items: center;
-            gap: 10px;
-            font-size: 16px;
-            font-weight: 600;
-            color: #dce1e6;
+            gap: 12px;
             margin-bottom: 20px;
         }
-        .icon-circle {
-            width: 24px;
-            height: 24px;
-            background: rgba(93, 240, 208, 0.1);
-            color: var(--accent-mint);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-        }
 
-        /* Поле ввода */
-        .input-box {
-            background: var(--bg-trade);
-            border: 1px dashed #2f3447; /* Пунктирная рамка */
-            border-radius: 12px;
-            padding: 5px 15px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 15px;
-            transition: 0.2s;
-        }
-        .input-box:focus-within { border-color: var(--accent-mint); border-style: solid; }
+        .card-header i { font-size: 24px; color: var(--accent-blue); text-shadow: 0 0 10px rgba(61, 127, 255, 0.3); }
+        .card-header-titles { line-height: 1.2; }
+        .card-title { font-weight: 800; color: white; font-size: 16px; text-transform: uppercase; }
+        .card-subtitle { color: var(--text-sec); font-size: 13px; }
 
-        .input-box i { color: var(--text-sec); font-size: 14px; }
-
-        .trade-input {
-            background: transparent;
-            border: none;
+        /* --- ПОЛЯ ВВОДА --- */
+        .input-field {
+            background: var(--bg-input);
+            border: 1px solid var(--card-border);
+            border-radius: 6px;
+            padding: 12px 15px;
             color: white;
-            width: 100%;
-            padding: 12px 0;
-            font-size: 13px;
             outline: none;
-            font-family: monospace;
-        }
-
-        /* Текст-подсказка */
-        .helper-text {
             font-size: 13px;
-            color: var(--text-sec);
-            margin-bottom: 25px;
-            margin-left: 5px;
-        }
-        .helper-link {
-            color: white;
-            text-decoration: underline;
-            font-weight: 600;
-            cursor: pointer;
-        }
-        .helper-link:hover { color: var(--accent-mint); }
-
-        /* Кнопка */
-        .save-btn {
-            background: var(--accent-mint);
-            color: #0f1116; /* Темный текст на светлой кнопке */
-            border: none;
+            transition: 0.2s;
             width: 100%;
-            padding: 16px;
-            border-radius: 10px;
+            box-sizing: border-box;
+        }
+        .input-field:focus { border-color: var(--accent-blue); }
+
+        /* --- КНОПКИ --- */
+        .btn-cyan {
+            width: 100%;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan));
+            color: #000;
             font-weight: 800;
-            font-size: 14px;
+            border: none;
+            padding: 14px;
+            border-radius: 6px;
             cursor: pointer;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            box-shadow: 0 4px 15px rgba(93, 240, 208, 0.2);
-            transition: transform 0.1s, box-shadow 0.2s;
-        }
-        .save-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(93, 240, 208, 0.3);
-            background: #4de0c0;
-        }
-        .save-btn:active { transform: translateY(0); }
-
-        .back-link {
-            display: block;
-            text-align: center;
-            margin-top: 20px;
-            color: var(--text-sec);
-            text-decoration: none;
             font-size: 14px;
+            transition: opacity 0.2s;
+            margin-top: 10px;
         }
-        .back-link:hover { color: white; }
+        .btn-cyan:hover { opacity: 0.9; }
 
-        /* Алерт успеха */
-        .alert-success {
-            background: rgba(93, 240, 208, 0.1);
-            color: var(--accent-mint);
-            padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 13px;
-            text-align: center;
-            border: 1px solid rgba(93, 240, 208, 0.2);
+        .btn-outline {
+            background: transparent;
+            color: white;
+            border: 1px solid var(--accent-blue);
+            padding: 0 20px;
+            border-radius: 6px;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-size: 12px;
+            transition: 0.2s;
+            white-space: nowrap;
+            border-image: linear-gradient(to right, var(--accent-blue), var(--accent-cyan)) 1;
         }
+        .btn-outline:hover { background: rgba(61, 127, 255, 0.1); }
+
+        /* --- ПРОФИЛЬ (ЦЕНТР) --- */
+        .profile-top { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--text-sec); margin-bottom: 20px; }
+        .profile-top .logout-link { color: var(--text-sec); text-decoration: none; transition: 0.2s; }
+        .profile-top .logout-link:hover { color: #ff4b2b; }
+
+        .steam-link {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.2s;
+        }
+        .steam-link:hover { color: var(--accent-cyan); text-shadow: 0 0 10px rgba(0, 231, 255, 0.4); }
+
+        .avatar-wrap { text-align: center; margin-bottom: 25px; }
+        .avatar-main {
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            border: 3px solid var(--accent-blue);
+            box-shadow: 0 0 20px rgba(61, 127, 255, 0.2);
+            object-fit: cover;
+        }
+
+        .balance-section { text-align: center; }
+        .balance-label { display: flex; justify-content: center; align-items: center; gap: 10px; font-size: 24px; font-weight: bold; color: white; }
+        .balance-label i { color: var(--accent-blue); }
+
+        /* --- СТАТИСТИКА (ЛЕВО) --- */
+        .stats-icons-row { display: flex; gap: 20px; margin-bottom: 20px; }
+        .stat-item { display: flex; align-items: center; gap: 10px; cursor: help; }
+        .stat-item i { font-size: 24px; color: var(--accent-blue); }
+        .stat-val { font-weight: bold; font-size: 20px; color: white; line-height: 1; }
+
+        .recent-games { border-top: 1px solid var(--card-border); padding-top: 15px; margin-top: 10px; }
+        .recent-games-header { display: flex; justify-content: space-between; align-items: center; }
+        .recent-games-title { color: var(--text-sec); font-size: 11px; text-transform: uppercase; font-weight: bold; margin: 0; }
+
+        .history-toggle-btn {
+            background: rgba(61, 127, 255, 0.1);
+            border: 1px solid rgba(61, 127, 255, 0.3);
+            color: var(--accent-cyan);
+            border-radius: 4px;
+            padding: 6px 12px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .history-toggle-btn:hover { background: var(--accent-blue); color: white; box-shadow: 0 0 10px rgba(61, 127, 255, 0.4); }
+
+        /* --- МОДАЛЬНОЕ ОКНО ИСТОРИИ --- */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-box {
+            background: var(--bg-card);
+            border: 1px solid var(--accent-blue);
+            border-radius: var(--border-radius);
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.8), 0 0 20px rgba(61, 127, 255, 0.2);
+            animation: modalFadeIn 0.3s ease;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--card-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #171923;
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+        }
+
+        .modal-title { font-size: 16px; font-weight: 800; text-transform: uppercase; color: white; display: flex; align-items: center; gap: 10px;}
+        .modal-title i { color: var(--accent-cyan); }
+
+        .modal-close {
+            background: transparent;
+            border: none;
+            color: var(--text-sec);
+            font-size: 20px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .modal-close:hover { color: #ff4b2b; }
+
+        .modal-body {
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .modal-body::-webkit-scrollbar { width: 6px; }
+        .modal-body::-webkit-scrollbar-track { background: transparent; }
+        .modal-body::-webkit-scrollbar-thumb { background: var(--card-border); border-radius: 4px; }
+
+        .history-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 14px;
+            padding: 12px 15px;
+            background: #1c1f2a;
+            border-radius: 8px;
+            border-left: 3px solid transparent;
+        }
+        .history-item.win-row { border-left-color: #5df0d0; background: rgba(93, 240, 208, 0.05); }
+        .history-item.lose-row { border-left-color: #ff4b2b; background: rgba(255, 75, 43, 0.05); }
+
+        .hist-left { display: flex; align-items: center; gap: 12px; width: 130px; color: var(--text-sec); }
+        .hist-left i { color: var(--accent-blue); font-size: 14px; }
+        .hist-bet { width: 80px; text-align: center; color: white; font-weight: bold;}
+
+        .hist-profit { width: 80px; text-align: right; font-weight: 800; }
+        .hist-profit.win { color: #5df0d0; }
+        .hist-profit.lose { color: #ff4b2b; }
+
+        /* Вспомогательные элементы */
+        .hint-text { color: var(--text-sec); font-size: 12px; margin-top: 15px; display: flex; align-items: center; gap: 8px; }
+        .hint-text a { color: var(--text-sec); text-decoration: none; border-bottom: 1px solid rgba(118, 124, 145, 0.4); transition: 0.2s; }
+        .hint-text a:hover { color: white; border-bottom-color: white; }
+        .back-link { text-align: center; display: block; color: var(--text-sec); text-decoration: none; font-size: 14px; margin-top: 40px; }
+        .back-link:hover { color: white; }
+        .alert { padding: 10px; border-radius: 6px; margin-bottom: 15px; font-size: 13px; text-align: center; }
+        .alert-success { background: rgba(0, 231, 255, 0.1); color: var(--accent-cyan); border: 1px solid rgba(0, 231, 255, 0.2); }
+        .alert-error { background: rgba(255, 82, 82, 0.1); color: #ff5252; border: 1px solid rgba(255, 82, 82, 0.2); }
     </style>
 </head>
 <body>
 
-<div class="profile-container">
+<div class="page-title">Профиль</div>
 
-    <div class="profile-header">
-        <div class="avatar-container">
-            <img th:src="${user.avatarUrl != null ? user.avatarUrl : 'https://avatars.steamstatic.com/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_full.jpg'}" class="avatar" alt="Ava">
-        </div>
-        <div class="username" th:text="${user.username}">Username</div>
-        <div class="steam-id" th:text="${user.steamId != null ? 'Steam ID: ' + user.steamId : 'ID: ' + user.id}">ID: 000</div>
-    </div>
+<div class="profile-grid">
 
-    <div class="trade-card">
-        <div class="card-title">
-            <div class="icon-circle"><i class="fas fa-link"></i></div>
-            Trader - URL ссылка
-        </div>
+    <div class="col">
 
-        <div th:if="${param.success}" class="alert-success">
-            <i class="fas fa-check"></i> Ссылка успешно сохранена!
-        </div>
-
-        <form action="/profile/trade-url" method="post">
-            <div class="input-box">
-                <i class="fas fa-link"></i>
-                <input type="text" class="trade-input" name="tradeUrl"
-                       th:value="${user.tradeUrl}"
-                       placeholder="https://steamcommunity.com/tradeoffer/new/..." required>
+        <div class="card">
+            <div class="card-header" style="margin-bottom: 15px;">
+                <i class="fas fa-link" style="font-size: 18px;"></i>
+                <div class="card-header-titles">
+                    <div class="card-title" style="font-size: 14px;">Trader - URL ссылка</div>
+                </div>
             </div>
 
-            <div class="helper-text">
-                • Ссылку на обмен можно получить в вашем профиле steam
-                <a href="https://steamcommunity.com/id/me/tradeoffers/privacy#trade_offer_access_url" target="_blank" class="helper-link">тут</a>
+            <div th:if="${param.success}" class="alert alert-success">Ссылка сохранена!</div>
+
+            <form action="/profile/trade-url" method="post">
+                <input type="text" name="tradeUrl" class="input-field" th:value="${user.tradeUrl}" placeholder="https://steamcommunity.com/tradeoffer/new/..." required>
+                <button type="submit" class="btn-cyan">Сохранить ссылку</button>
+            </form>
+
+            <div class="hint-text">
+                <i class="fas fa-question-circle"></i>
+                <a href="https://steamcommunity.com/id/me/tradeoffers/privacy#trade_offer_access_url" target="_blank">Узнать Trade-ссылку можно здесь</a>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-chart-line"></i>
+                <div class="card-header-titles">
+                    <div class="card-title">Статистика</div>
+                    <div class="card-subtitle">Аккаунта</div>
+                </div>
             </div>
 
-            <button type="submit" class="save-btn">Сохранить Trade URL</button>
-        </form>
+            <div class="stats-icons-row">
+                <div class="stat-item" title="Режим: Crash">
+                    <i class="fas fa-cube"></i>
+                    <div class="stat-val" th:text="${totalGames}">0</div>
+                </div>
+            </div>
+
+            <div class="recent-games">
+                <div class="recent-games-header">
+                    <h3 class="recent-games-title">Игровая активность</h3>
+                    <button class="history-toggle-btn" onclick="openModal()" title="Открыть историю">
+                        <i class="fas fa-list"></i> История игр
+                    </button>
+                </div>
+            </div>
+        </div>
+
     </div>
 
-    <a href="/" class="back-link"><i class="fas fa-arrow-left"></i> Вернуться в игру</a>
+    <div class="col">
+        <div class="card" style="padding: 20px;">
+            <div class="profile-top">
+                <a th:href="'https://steamcommunity.com/profiles/' + ${user.steamId}" target="_blank" class="steam-link" title="Перейти в Steam профиль">
+                    <i class="fab fa-steam" style="color: var(--accent-blue); font-size: 16px;"></i>
+                    <span th:text="${user.username}"></span>
+                </a>
+                <a href="/logout" class="logout-link"><i class="fas fa-sign-out-alt"></i> Выход</a>
+            </div>
+
+            <div class="avatar-wrap">
+                <img th:src="${user.avatarUrl != null ? user.avatarUrl : 'https://avatars.steamstatic.com/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_full.jpg'}" class="avatar-main" alt="Avatar">
+            </div>
+
+            <div class="balance-section">
+                <div style="color: var(--text-sec); font-size: 12px; margin-bottom: 15px;" th:text="'Steam ID: ' + ${user.steamId}">ID: 000</div>
+
+                <div class="balance-label">
+                    <i class="fas fa-wallet"></i>
+                    <span th:text="${user.balance}">0</span>
+                </div>
+                <div style="color: var(--text-sec); font-size: 13px; margin-top: 5px;">Баланс монет</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-certificate"></i>
+                <div class="card-header-titles">
+                    <div class="card-title">Персональный</div>
+                    <div class="card-subtitle">купон</div>
+                </div>
+            </div>
+
+            <div th:if="${param.promoSuccess}" class="alert alert-success">Купон применен!</div>
+            <div th:if="${param.promoError}" class="alert alert-error" th:text="${param.promoError}">Ошибка</div>
+
+            <form action="/profile/promo" method="post" style="display: flex; gap: 10px;">
+                <input type="text" name="code" class="input-field" placeholder="Введите код купона" required autocomplete="off">
+                <button type="submit" class="btn-outline">Применить</button>
+            </form>
+
+            <div class="hint-text">
+                <i class="fas fa-question-circle"></i>
+                <span>Промокоды можно найти в наших соцсетях</span>
+            </div>
+        </div>
+    </div>
+
 </div>
+
+<a href="/" class="back-link">← Вернуться в игру</a>
+
+<div id="historyModal" class="modal-overlay">
+    <div class="modal-box">
+        <div class="modal-header">
+            <div class="modal-title"><i class="fas fa-history"></i> История игр</div>
+            <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+        </div>
+
+        <div class="modal-body">
+            <div th:if="${recentGames == null || recentGames.isEmpty()}" style="color: var(--text-sec); text-align: center; padding: 20px;">
+                Вы еще не сделали ни одной ставки.
+            </div>
+
+            <div th:each="bet : ${recentGames}"
+                 th:classappend="${bet.profit != null} ? 'win-row' : 'lose-row'"
+                 class="history-item">
+
+                <div class="hist-left">
+                    <i class="fas fa-rocket" title="Crash"></i>
+                    <span th:text="${#temporals.format(bet.playedAt, 'dd.MM HH:mm')}"></span>
+                </div>
+
+                <div class="hist-bet" th:text="${bet.amount} + ' м.'"></div>
+
+                <div th:if="${bet.profit != null}" class="hist-profit win" th:text="'+' + (${bet.profit} - ${bet.amount})"></div>
+                <div th:if="${bet.profit == null}" class="hist-profit lose" th:text="'-' + ${bet.amount}"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var modal = document.getElementById("historyModal");
+
+    function openModal() {
+        modal.style.display = "flex";
+    }
+
+    function closeModal() {
+        modal.style.display = "none";
+    }
+
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+</script>
 
 </body>
 </html>

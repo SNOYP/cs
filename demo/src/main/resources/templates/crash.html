@@ -19,12 +19,11 @@
             --border-radius: 12px;
         }
 
-        /* 1. ФИКСИРУЕМ СТРАНИЦУ ПО РАЗМЕРУ ОКНА */
         html, body {
             height: 100%;
             margin: 0;
             padding: 0;
-            overflow: hidden; /* Убираем внешнюю прокрутку */
+            overflow: hidden;
         }
 
         body {
@@ -50,7 +49,6 @@
         }
         .logo { font-size: 22px; font-weight: 800; color: var(--accent-cyan); text-transform: uppercase; letter-spacing: 1px; text-decoration: none; }
 
-        /* Панель пользователя в шапке */
         .user-panel {
             display: flex;
             align-items: center;
@@ -61,7 +59,6 @@
             border: 1px solid #2a2e3d;
         }
 
-        /* Ссылка на профиль (Обертка) */
         .profile-link {
             text-decoration: none;
             display: flex;
@@ -72,7 +69,6 @@
         }
         .profile-link:hover { opacity: 0.8; }
 
-        /* Аватарка в шапке */
         .header-avatar {
             width: 32px;
             height: 32px;
@@ -266,7 +262,25 @@
         .bet-item.loser { background: rgba(255, 75, 43, 0.08); border-left: 3px solid var(--accent-red); }
 
         .user-info { display: flex; align-items: center; gap: 10px; color: white; font-weight: 600; }
-        .avatar { width: 30px; height: 30px; background: #2f3447; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #767c91; }
+
+        /* СТИЛЬ АВАТАРКИ ИЛИ ЗАГЛУШКИ */
+        .avatar {
+            width: 30px;
+            height: 30px;
+            background: #2f3447;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: #767c91;
+            overflow: hidden; /* Важно для картинки */
+        }
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
 
         .stats-container { display: flex; align-items: center; gap: 10px; text-align: right; }
         .bet-amount { color: var(--text-sec); font-weight: 500; }
@@ -434,7 +448,6 @@
             const res = await fetch('/api/crash/status');
             const data = await res.json();
 
-            // --- ИСПРАВЛЕНИЕ UNDEFINED ---
             if (data.balance !== undefined && data.balance !== null) {
                 currentBalance = data.balance;
                 balanceSpan.innerText = data.balance;
@@ -661,7 +674,6 @@
 
             if (b.profit != null) {
                 rowClass = "winner";
-                // ВАЖНОЕ ИЗМЕНЕНИЕ: ЧИСТАЯ ПРИБЫЛЬ
                 let netProfit = b.profit - b.amount;
                 statsHtml = `
                     <div class="stats-container">
@@ -690,7 +702,12 @@
                 `;
             }
 
-            let avatar = `<div class="avatar">${b.username.charAt(0).toUpperCase()}</div>`;
+            // --- НОВАЯ ЛОГИКА ДЛЯ КАРТИНКИ ---
+            let avatarImg = b.avatarUrl
+                ? `<img src="${b.avatarUrl}" alt="Ava">`
+                : b.username.charAt(0).toUpperCase();
+
+            let avatar = `<div class="avatar">${avatarImg}</div>`;
 
             html += `
                 <div class="bet-item ${rowClass}">
