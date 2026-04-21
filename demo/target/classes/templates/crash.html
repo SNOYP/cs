@@ -5,7 +5,7 @@
     <title>Crash Game | SkinCasino</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        /* --- ЦВЕТОВАЯ ПАЛИТРА (Deep Blue / Neon) --- */
+        /* --- ЦВЕТОВАЯ ПАЛИТРА --- */
         :root {
             --bg-body: #13151b;
             --bg-panel: #1d202b;
@@ -19,37 +19,92 @@
             --border-radius: 12px;
         }
 
+        /* 1. ФИКСИРУЕМ СТРАНИЦУ ПО РАЗМЕРУ ОКНА */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* Убираем внешнюю прокрутку */
+        }
+
         body {
             background: var(--bg-body);
             color: var(--text-main);
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            margin: 0;
             display: flex;
             flex-direction: column;
-            min-height: 100vh;
-            overflow: hidden;
         }
 
-        /* --- ШАПКА --- */
+        /* --- ШАПКА (Header) --- */
         header {
             background: var(--bg-panel);
             padding: 0 25px;
             height: 60px;
+            flex-shrink: 0;
             display: flex;
             justify-content: space-between;
             align-items: center;
             border-bottom: 1px solid #2a2e3d;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 10;
         }
         .logo { font-size: 22px; font-weight: 800; color: var(--accent-cyan); text-transform: uppercase; letter-spacing: 1px; text-decoration: none; }
-        .user-panel { display: flex; align-items: center; gap: 15px; background: #151820; padding: 6px 15px; border-radius: 30px; border: 1px solid #2a2e3d; }
-        .balance { color: var(--accent-green); font-weight: bold; }
+
+        /* Панель пользователя в шапке */
+        .user-panel {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: #151820;
+            padding: 5px 15px;
+            border-radius: 30px;
+            border: 1px solid #2a2e3d;
+        }
+
+        /* Ссылка на профиль (Обертка) */
+        .profile-link {
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: white;
+            transition: 0.2s;
+        }
+        .profile-link:hover { opacity: 0.8; }
+
+        /* Аватарка в шапке */
+        .header-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2px solid var(--accent-blue);
+            object-fit: cover;
+        }
+
+        .user-text { text-align: right; line-height: 1.2; }
+        .username-text { font-size: 13px; color: white; font-weight: 600; }
+        .balance { color: var(--accent-green); font-weight: bold; font-size: 14px; }
 
         /* --- ОСНОВНАЯ СЕТКА --- */
-        .main-layout { display: flex; flex: 1; height: calc(100vh - 60px); }
-        .game-section { flex: 3; display: flex; flex-direction: column; border-right: 1px solid #2a2e3d; position: relative; }
+        .main-layout {
+            display: flex;
+            flex: 1;
+            height: calc(100vh - 60px);
+            overflow: hidden;
+        }
 
-        /* --- ИСТОРИЯ --- */
+        /* 2. ЛЕВАЯ ЧАСТЬ (Игра) */
+        .game-section {
+            flex: 3;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #2a2e3d;
+            position: relative;
+            overflow-y: auto;
+            min-width: 0;
+        }
+
+        /* История */
         .history-bar {
             height: 50px;
             background: var(--bg-panel);
@@ -59,6 +114,7 @@
             padding: 0 15px;
             overflow: hidden;
             border-bottom: 1px solid #2a2e3d;
+            flex-shrink: 0;
         }
         .badge {
             padding: 5px 12px;
@@ -77,22 +133,27 @@
         .badge-epic { color: #e088ff; background: rgba(169, 62, 194, 0.15); border: 1px solid rgba(169, 62, 194, 0.3); }
         .badge-gold { color: #ffcc00; background: rgba(194, 152, 62, 0.15); border: 1px solid rgba(194, 152, 62, 0.3); }
 
-        /* --- ГРАФИК --- */
-        .chart-container { flex: 1; position: relative; background: radial-gradient(circle at center, #242836 0%, #13151b 100%); overflow: hidden; }
+        /* График */
+        .chart-container {
+            flex: 1;
+            position: relative;
+            background: radial-gradient(circle at center, #242836 0%, #13151b 100%);
+            overflow: hidden;
+            min-height: 250px;
+        }
         canvas { width: 100%; height: 100%; }
         .center-info { position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%); text-align: center; z-index: 10; pointer-events: none; }
         .multiplier { font-size: 80px; font-weight: 900; color: white; text-shadow: 0 0 40px rgba(61, 127, 255, 0.4); font-family: 'Segoe UI', sans-serif; letter-spacing: -2px; }
         .status-text { font-size: 16px; color: var(--text-sec); margin-top: 5px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; }
 
-        /* --- ПАНЕЛЬ УПРАВЛЕНИЯ --- */
+        /* Панель управления */
         .controls-wrapper {
             background: var(--bg-panel);
             display: flex;
             gap: 15px;
             padding: 20px;
             border-top: 1px solid #2a2e3d;
-            height: auto;
-            min-height: 240px;
+            flex-shrink: 0;
         }
 
         .bet-column {
@@ -108,7 +169,6 @@
         }
 
         .section-title { font-size: 11px; color: var(--text-sec); font-weight: 700; text-transform: uppercase; margin-bottom: 4px; }
-
         .input-row { display: flex; gap: 8px; align-items: center; }
 
         .custom-input {
@@ -167,14 +227,9 @@
         }
         .btn-cashout:hover { box-shadow: 0 0 20px rgba(84, 185, 71, 0.4); }
 
-        .btn-waiting {
-            background: #353b4d;
-            color: #666c80;
-            cursor: not-allowed;
-            box-shadow: none;
-        }
+        .btn-waiting { background: #353b4d; color: #666c80; cursor: not-allowed; box-shadow: none; }
 
-        /* --- САЙДБАР --- */
+        /* 3. ПРАВАЯ ЧАСТЬ (Сайдбар) */
         .sidebar {
             flex: 1;
             min-width: 280px;
@@ -183,6 +238,7 @@
             border-left: 1px solid #2a2e3d;
             display: flex;
             flex-direction: column;
+            overflow-y: auto;
         }
         .sidebar-header {
             padding: 15px 20px;
@@ -193,6 +249,7 @@
             justify-content: space-between;
             font-size: 12px;
             text-transform: uppercase;
+            flex-shrink: 0;
         }
         .bets-list { flex: 1; overflow-y: auto; }
 
@@ -205,7 +262,6 @@
             align-items: center;
             background: #181b24;
         }
-
         .bet-item.winner { background: rgba(84, 185, 71, 0.08); border-left: 3px solid var(--accent-green); }
         .bet-item.loser { background: rgba(255, 75, 43, 0.08); border-left: 3px solid var(--accent-red); }
 
@@ -216,31 +272,48 @@
         .bet-amount { color: var(--text-sec); font-weight: 500; }
         .profit { color: var(--accent-green); font-weight: bold; text-shadow: 0 0 10px rgba(84, 185, 71, 0.3); }
         .loss { color: var(--accent-red); font-weight: bold; }
+        .badge-mult { background: #2a2e3d; color: white; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 700; }
 
-        .badge-mult {
-            background: #2a2e3d;
-            color: white;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: 700;
-        }
-
+        /* Скроллбары */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #13151b; }
         ::-webkit-scrollbar-thumb { background: #2f3447; border-radius: 3px; }
+
+        /* 4. АДАПТАЦИЯ */
+        @media (max-width: 900px) {
+            .main-layout {
+                flex-direction: column;
+                overflow-y: auto;
+                height: auto;
+            }
+            body { overflow-y: auto; height: auto; }
+            .game-section {
+                border-right: none;
+                border-bottom: 1px solid #2a2e3d;
+                flex: none;
+                height: auto;
+            }
+            .chart-container { height: 300px; min-height: 300px; }
+            .sidebar { max-width: 100%; height: 400px; }
+        }
     </style>
 </head>
 <body>
 
 <header>
     <a href="/" class="logo"><i class="fas fa-rocket" style="margin-right: 8px;"></i> SkinCasino</a>
+
     <div class="user-panel">
-        <div style="text-align: right; line-height: 1.2;">
-            <div th:text="${user.username}" id="username" style="font-size: 13px; color:white;">User</div>
-            <div class="balance" style="font-size: 14px;"><i class="fas fa-coins"></i> <span id="userBalance" th:text="${user.balance}">0</span></div>
-        </div>
-        <a href="/logout" style="color: #ff5252; margin-left: 10px; font-size: 18px;"><i class="fas fa-sign-out-alt"></i></a>
+        <a href="/profile" class="profile-link">
+            <img th:src="${user.avatarUrl != null ? user.avatarUrl : 'https://avatars.steamstatic.com/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_full.jpg'}" class="header-avatar" alt="Ava">
+
+            <div class="user-text">
+                <div th:text="${user.username}" id="username" class="username-text">User</div>
+                <div class="balance"><i class="fas fa-coins"></i> <span id="userBalance" th:text="${user.balance}">0</span></div>
+            </div>
+        </a>
+
+        <a href="/logout" style="color: #ff5252; margin-left: 10px; font-size: 18px;" title="Выйти"><i class="fas fa-sign-out-alt"></i></a>
     </div>
 </header>
 
@@ -361,8 +434,12 @@
             const res = await fetch('/api/crash/status');
             const data = await res.json();
 
-            currentBalance = data.balance;
-            balanceSpan.innerText = data.balance;
+            // --- ИСПРАВЛЕНИЕ UNDEFINED ---
+            if (data.balance !== undefined && data.balance !== null) {
+                currentBalance = data.balance;
+                balanceSpan.innerText = data.balance;
+            }
+
             updateHistory(data.history);
             updateBetsTable(data.bets, data.status, data.multiplier);
 

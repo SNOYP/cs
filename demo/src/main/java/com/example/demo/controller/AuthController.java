@@ -4,7 +4,7 @@ import com.example.demo.model.User;
 import com.example.demo.service.SteamService;
 import com.example.demo.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession; // Импорт сессии
+import jakarta.servlet.http.HttpSession;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -39,19 +39,22 @@ public class AuthController {
         String steamId = steamService.verify(request.getParameterMap());
 
         if (steamId != null) {
-            String nickname = steamService.getSteamPersonaName(steamId);
-            User user = userService.processSteamLogin(steamId, nickname);
+            // 1. Получаем полные данные (ник + аватар)
+            var steamData = steamService.getSteamUserData(steamId);
 
+            // 2. Регистрируем или обновляем юзера
+            User user = userService.processSteamLogin(steamData);
+
+            // 3. Авторизуем в Spring Security
             UserDetails userDetails = userDetailsService.loadUserByUsername(user.getUsername());
             UsernamePasswordAuthenticationToken authToken =
                     new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
-            // Создаем контекст безопасности
             SecurityContext context = SecurityContextHolder.createEmptyContext();
             context.setAuthentication(authToken);
             SecurityContextHolder.setContext(context);
 
-            // ВАЖНО: Сохраняем контекст в сессию вручную, чтобы не терялся при редиректе
+            // Важно: сохраняем сессию
             HttpSession session = request.getSession(true);
             session.setAttribute("SPRING_SECURITY_CONTEXT", context);
 

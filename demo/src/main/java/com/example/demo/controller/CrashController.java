@@ -24,17 +24,19 @@ public class CrashController {
 
     @GetMapping("/status")
     public Map<String, Object> getStatus(@AuthenticationPrincipal UserDetails userDetails) {
+
         Map<String, Object> status = crashService.getStatus(userDetails.getUsername());
 
-        User user = userRepository.findByUsername(userDetails.getUsername()).orElseThrow();
+        if (userDetails != null) {
+            User user = userRepository.findByUsername(userDetails.getUsername()).orElse(null);
+            if (user != null) {
+                status.put("balance", user.getBalance());
+            }
+        }
 
-        Map<String, Object> response = new HashMap<>(status);
-        response.put("balance", user.getBalance());
-
-        return response;
+        return status;
     }
 
-    // Добавили параметр slot (1 или 2)
     @PostMapping("/bet")
     public Map<String, Object> bet(@RequestParam Long amount,
                                    @RequestParam int slot,
@@ -47,7 +49,6 @@ public class CrashController {
         }
     }
 
-    // Добавили параметр slot (1 или 2)
     @PostMapping("/cashout")
     public Map<String, Object> cashout(@RequestParam int slot,
                                        @AuthenticationPrincipal UserDetails userDetails) {

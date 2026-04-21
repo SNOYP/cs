@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Профиль | SkinCasino</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg-body: #0f1116;
+            --bg-card: #181b24;
+            --bg-trade: #1e222d; /* Темный фон для блока трейда */
+            --accent-blue: #3d7fff;
+            --accent-mint: #5df0d0; /* Цвет кнопки как на фото */
+            --text-main: #ffffff;
+            --text-sec: #8b92a6;
+            --border-radius: 16px;
+        }
+
+        body {
+            background: var(--bg-body);
+            color: var(--text-main);
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .profile-container {
+            width: 100%;
+            max-width: 600px;
+            padding: 20px;
+        }
+
+        /* Карточка профиля */
+        .profile-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .avatar-container {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 15px;
+            position: relative;
+        }
+        .avatar {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--bg-card);
+            box-shadow: 0 0 0 2px var(--accent-blue);
+        }
+
+        .username { font-size: 24px; font-weight: 800; margin-bottom: 5px; }
+        .steam-id { color: var(--text-sec); font-size: 13px; font-family: monospace; background: #13151b; padding: 4px 10px; border-radius: 6px; display: inline-block; }
+
+        /* --- БЛОК TRADE URL (КАК НА СКРИНШОТЕ) --- */
+        .trade-card {
+            background: var(--bg-card);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            border: 1px solid #232735;
+        }
+
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #dce1e6;
+            margin-bottom: 20px;
+        }
+        .icon-circle {
+            width: 24px;
+            height: 24px;
+            background: rgba(93, 240, 208, 0.1);
+            color: var(--accent-mint);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        /* Поле ввода */
+        .input-box {
+            background: var(--bg-trade);
+            border: 1px dashed #2f3447; /* Пунктирная рамка */
+            border-radius: 12px;
+            padding: 5px 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            transition: 0.2s;
+        }
+        .input-box:focus-within { border-color: var(--accent-mint); border-style: solid; }
+
+        .input-box i { color: var(--text-sec); font-size: 14px; }
+
+        .trade-input {
+            background: transparent;
+            border: none;
+            color: white;
+            width: 100%;
+            padding: 12px 0;
+            font-size: 13px;
+            outline: none;
+            font-family: monospace;
+        }
+
+        /* Текст-подсказка */
+        .helper-text {
+            font-size: 13px;
+            color: var(--text-sec);
+            margin-bottom: 25px;
+            margin-left: 5px;
+        }
+        .helper-link {
+            color: white;
+            text-decoration: underline;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .helper-link:hover { color: var(--accent-mint); }
+
+        /* Кнопка */
+        .save-btn {
+            background: var(--accent-mint);
+            color: #0f1116; /* Темный текст на светлой кнопке */
+            border: none;
+            width: 100%;
+            padding: 16px;
+            border-radius: 10px;
+            font-weight: 800;
+            font-size: 14px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 15px rgba(93, 240, 208, 0.2);
+            transition: transform 0.1s, box-shadow 0.2s;
+        }
+        .save-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(93, 240, 208, 0.3);
+            background: #4de0c0;
+        }
+        .save-btn:active { transform: translateY(0); }
+
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: var(--text-sec);
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .back-link:hover { color: white; }
+
+        /* Алерт успеха */
+        .alert-success {
+            background: rgba(93, 240, 208, 0.1);
+            color: var(--accent-mint);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            text-align: center;
+            border: 1px solid rgba(93, 240, 208, 0.2);
+        }
+    </style>
+</head>
+<body>
+
+<div class="profile-container">
+
+    <div class="profile-header">
+        <div class="avatar-container">
+            <img th:src="${user.avatarUrl != null ? user.avatarUrl : 'https://avatars.steamstatic.com/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_full.jpg'}" class="avatar" alt="Ava">
+        </div>
+        <div class="username" th:text="${user.username}">Username</div>
+        <div class="steam-id" th:text="${user.steamId != null ? 'Steam ID: ' + user.steamId : 'ID: ' + user.id}">ID: 000</div>
+    </div>
+
+    <div class="trade-card">
+        <div class="card-title">
+            <div class="icon-circle"><i class="fas fa-link"></i></div>
+            Trader - URL ссылка
+        </div>
+
+        <div th:if="${param.success}" class="alert-success">
+            <i class="fas fa-check"></i> Ссылка успешно сохранена!
+        </div>
+
+        <form action="/profile/trade-url" method="post">
+            <div class="input-box">
+                <i class="fas fa-link"></i>
+                <input type="text" class="trade-input" name="tradeUrl"
+                       th:value="${user.tradeUrl}"
+                       placeholder="https://steamcommunity.com/tradeoffer/new/..." required>
+            </div>
+
+            <div class="helper-text">
+                • Ссылку на обмен можно получить в вашем профиле steam
+                <a href="https://steamcommunity.com/id/me/tradeoffers/privacy#trade_offer_access_url" target="_blank" class="helper-link">тут</a>
+            </div>
+
+            <button type="submit" class="save-btn">Сохранить Trade URL</button>
+        </form>
+    </div>
+
+    <a href="/" class="back-link"><i class="fas fa-arrow-left"></i> Вернуться в игру</a>
+</div>
+
+</body>
+</html>

@@ -10,62 +10,43 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String username; // Логин админа или Ник из стима
-    private String password; // Только для админа (шифрованный)
-    private String steamId;  // Уникальный ID стима (для игроков)
-    private Long balance = 0L; // Баланс в монетах
-    private String role; // ROLE_ADMIN или ROLE_USER
+    private String username;
+    private String password;
+    private String steamId;
+    private Long balance = 0L;
+    private String role;
+
+    // --- НОВЫЕ ПОЛЯ ---
+    private String avatarUrl; // Ссылка на картинку из Steam
+    private String tradeUrl;  // Ссылка на обмен
+    // ------------------
 
     public User() {
     }
 
-    // --- Геттеры и Сеттеры (То, чего не хватало) ---
+    // Геттеры и Сеттеры
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public Long getId() {
-        return id;
-    }
+    public String getUsername() { return username; }
+    public void setUsername(String username) { this.username = username; }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
 
-    public String getUsername() {
-        return username;
-    }
+    public String getSteamId() { return steamId; }
+    public void setSteamId(String steamId) { this.steamId = steamId; }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
+    public Long getBalance() { return balance; }
+    public void setBalance(Long balance) { this.balance = balance; }
 
-    public String getPassword() {
-        return password;
-    }
+    public String getRole() { return role; }
+    public void setRole(String role) { this.role = role; }
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
+    // --- НОВЫЕ ГЕТТЕРЫ/СЕТТЕРЫ ---
+    public String getAvatarUrl() { return avatarUrl; }
+    public void setAvatarUrl(String avatarUrl) { this.avatarUrl = avatarUrl; }
 
-    public String getSteamId() {
-        return steamId;
-    }
-
-    public void setSteamId(String steamId) {
-        this.steamId = steamId;
-    }
-
-    public Long getBalance() {
-        return balance;
-    }
-
-    public void setBalance(Long balance) {
-        this.balance = balance;
-    }
-
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
-    }
+    public String getTradeUrl() { return tradeUrl; }
+    public void setTradeUrl(String tradeUrl) { this.tradeUrl = tradeUrl; }
 }
